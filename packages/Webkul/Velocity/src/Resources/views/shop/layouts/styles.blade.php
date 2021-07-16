@@ -1,5 +1,5 @@
 {{-- preloaded fonts --}}
-<link rel="preload" href="{{ asset('themes/velocity/assets/fonts/font-rango/rango.ttf') . '?o0evyv' }}" as="font" crossorigin="anonymous" />
+{{-- <link rel="preload" href="{{ asset('themes/velocity/assets/fonts/font-rango/rango.ttf') . '?o0evyv' }}" as="font" crossorigin="anonymous" /> --}}
 
 {{-- bootstrap --}}
 <link rel="stylesheet" href="{{ asset('themes/velocity/assets/css/bootstrap.min.css') }}" />
@@ -12,6 +12,12 @@
 {{-- mix versioned compiled file --}}
 <link rel="stylesheet" href="{{ asset(mix('/css/velocity-home.css', 'themes/velocity/assets')) }}" />
 {{-- <link rel="stylesheet" href="{{ asset(mix('/css/velocity.css', 'themes/velocity/assets')) }}" /> --}}
+<link rel="stylesheet" href="" />
+<link
+  rel="prefetch"
+  as="style"
+  onload="this.rel = 'stylesheet'"
+  href="{{ asset(mix('/css/velocity-home-unused.css', 'themes/velocity/assets')) }}">
 
 {{-- extra css --}}
 @stack('css')

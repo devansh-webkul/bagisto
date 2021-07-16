@@ -34,6 +34,12 @@ mix
             includePaths: ['node_modules/bootstrap-sass/assets/stylesheets/'],
         }
     )
+    .sass(
+        __dirname + '/src/Resources/assets/sass/home-unused.scss',
+        __dirname + '/' + publicPath + '/css/velocity-home-unused.css', {
+            includePaths: ['node_modules/bootstrap-sass/assets/stylesheets/'],
+        }
+    )
 
     .options({
         processCssUrls: false
