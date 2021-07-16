@@ -10,7 +10,8 @@
 @endif
 
 {{-- mix versioned compiled file --}}
-<link rel="stylesheet" href="{{ asset(mix('/css/velocity.css', 'themes/velocity/assets')) }}" />
+<link rel="stylesheet" href="{{ asset(mix('/css/velocity-home.css', 'themes/velocity/assets')) }}" />
+{{-- <link rel="stylesheet" href="{{ asset(mix('/css/velocity.css', 'themes/velocity/assets')) }}" /> --}}
 
 {{-- extra css --}}
 @stack('css')

@@ -28,6 +28,12 @@ mix
             includePaths: ['node_modules/bootstrap-sass/assets/stylesheets/'],
         }
     )
+    .sass(
+        __dirname + '/src/Resources/assets/sass/home.scss',
+        __dirname + '/' + publicPath + '/css/velocity-home.css', {
+            includePaths: ['node_modules/bootstrap-sass/assets/stylesheets/'],
+        }
+    )
 
     .options({
         processCssUrls: false
