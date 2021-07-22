@@ -1,0 +1,38 @@
+/**
+ * Very small devices.
+ */
+@import '../main/rango';
+@import '../main/icons';
+@import '../main/mixins';
+@import '../main/variables';
+
+@media only screen and (max-width: 320px) {
+    .sticky-header {
+        display: none !important;
+    }
+
+    #home-right-bar-container {
+        position: unset;
+        top: unset;
+    }
+
+    .quick-view-in-list {
+        display: none;
+    }
+
+    .slider-container {
+        min-height: 100px;
+    }
+
+    .advertisement-four-container {
+        min-height: 992px;
+
+        .advertisement-container-block {
+            min-height: 425px;
+        }
+
+        .offers-ct-panel {
+            min-height: 425px;
+        }
+    }
+}

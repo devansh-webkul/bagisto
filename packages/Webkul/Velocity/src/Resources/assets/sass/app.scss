@@ -13,13 +13,16 @@
 @import "components/home";
 @import "components/footer";
 @import "components/product-view";
-@import "components/media";
 @import "components/rtl";
 
 /* static */
 @import "static/material-icons";
 
 /* starting */
+.vc-small-screen {
+    display: none !important;
+}
+
 * {
     margin: 0;
     padding: 0;

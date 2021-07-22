@@ -1,0 +1,55 @@
+/**
+ * Extra large devices.
+ */
+@import '../main/rango';
+@import '../main/icons';
+@import '../main/mixins';
+@import '../main/variables';
+
+@media only screen and (max-width: 1192px) {
+    .sticky-header {
+        display: block !important;
+    }
+
+    .vc-full-screen {
+        display: block !important;
+    }
+
+    .vc-small-screen {
+        display: none !important;
+    }
+
+    #main-category {
+        display: block !important;
+    }
+
+    .footer {
+        .footer-content {
+            .newsletter-subscription {
+                .newsletter-wrapper {
+                    .social-icons {
+                        width: 100%;
+                        padding: 5px 0;
+                        text-align: center !important;
+                    }
+
+                    .subscribe-newsletter {
+                        width: 100%;
+                        padding: 10px 0;
+                        text-align: center;
+                    }
+                }
+            }
+
+            .footer-statics {
+                > div:not(:last-child) {
+                    margin-bottom: 30px;
+                }
+            }
+        }
+    }
+
+    .slider-container {
+        min-height: 290px;
+    }
+}

@@ -1,58 +1,11 @@
-.vc-small-screen {
-    display: none !important;
-}
+/**
+ * Large devices.
+ */
+@import '../main/rango';
+@import '../main/icons';
+@import '../main/mixins';
+@import '../main/variables';
 
-/* large devices */
-@media only screen and (max-width: 1192px) {
-
-    .sticky-header {
-        display: block !important;
-    }
-
-    .vc-full-screen {
-        display: block !important;
-    }
-
-    .vc-small-screen {
-        display: none !important;
-    }
-
-    #main-category {
-        display: block !important;
-    }
-
-    .footer {
-        .footer-content {
-            .newsletter-subscription {
-                .newsletter-wrapper {
-                    .social-icons {
-                        width: 100%;
-                        padding: 5px 0;
-                        text-align: center !important;
-                    }
-
-                    .subscribe-newsletter {
-                        width: 100%;
-                        padding: 10px 0;
-                        text-align: center;
-                    }
-                }
-            }
-
-            .footer-statics {
-                > div:not(:last-child) {
-                    margin-bottom: 30px;
-                }
-            }
-        }
-    }
-
-    .slider-container {
-        min-height: 290px;
-    }
-}
-
-/* medium devices */
 @media only screen and (max-width: 992px) {
     $header-height: 50px;
 
@@ -107,7 +60,8 @@
             width: 100%;
             height: $header-height;
             background-color: $white-color;
-            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16),
+                0 3px 6px rgba(0, 0, 0, 0.23);
 
             > div {
                 display: none;
@@ -173,7 +127,6 @@
     }
 
     .product-card-new {
-
         max-width: 19rem;
 
         &.grid-card {
@@ -203,7 +156,6 @@
 
                         &.compare-icon {
                             right: 0;
-
                         }
 
                         &.wishlist-icon {
@@ -560,7 +512,7 @@
         .arrow {
             &.left,
             &.right {
-                display: none
+                display: none;
             }
         }
 
@@ -637,7 +589,7 @@
                 position: fixed;
                 padding-bottom: 10px;
                 background-color: $white-color;
-                box-shadow: 0 2px 4px 0 rgba(0,0,0,0.21);
+                box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.21);
 
                 .toolbar-wrapper {
                     > div.col-4 {
@@ -687,7 +639,7 @@
                 display: none;
                 display: table;
                 padding-left: 10px;
-                margin : 13px 0px 13px 0px;
+                margin: 13px 0px 13px 0px;
 
                 > i {
                     font-size: 26px;
@@ -789,31 +741,31 @@
                             display: contents;
 
                             &.profile::before {
-                                content: "\E995";
+                                content: '\E995';
                             }
 
                             &.address::before {
-                                content: "\e949";
+                                content: '\e949';
                             }
 
                             &.reviews::before {
-                                content: "\e97d";
+                                content: '\e97d';
                             }
 
                             &.wishlist::before {
-                                content: "\e93e";
+                                content: '\e93e';
                             }
 
                             &.compare::before {
-                                content: "\e93b";
+                                content: '\e93b';
                             }
 
                             &.orders::before {
-                                content: "\e931";
+                                content: '\e931';
                             }
 
                             &.downloadables::before {
-                                content: "\e926";
+                                content: '\e926';
                             }
                         }
                     }
@@ -994,139 +946,5 @@
 
     .slider-container {
         min-height: 220px;
-    }
-}
-
-/* medium devices */
-@media only screen and (max-width: 768px) {
-    .sticky-header {
-        display: none !important;
-    }
-
-    #home-right-bar-container {
-        position: unset;
-        top: unset;
-    }
-
-    .modal-container {
-        left: 10%;
-        max-width: 80%;
-        margin-left: 0px;
-    }
-
-    .footer .footer-list-container {
-        padding-left: 0px !important;
-    }
-
-    .footer .currency {
-        display: block !important;
-    }
-
-    .table {
-        width: 90%;
-        margin-bottom: 1rem;
-        margin-top: 68px;
-        color: #212529;
-        overflow-x: auto;
-    }
-
-    .per-page {
-        position: absolute;
-        margin-top: 66px;
-        margin-right: -1px;
-        margin-left: 17px;
-        width: 151px;
-    }
-
-    .filter-left {
-        position: relative;
-        margin-right: -6px!important;
-    }
-
-    .dropdown-filters {
-        margin-left: 15px;
-    }
-
-    button.btn.btn-sm.btn-primary.apply-filter {
-        margin-top: 10px;
-        margin-left: -158px;
-    }
-
-    .quick-view-btn-container span {
-        left: 24%;
-        top: -24px;
-        font-size: 13px;
-    }
-
-    .quick-view-in-list {
-        display: none;
-    }
-
-    .product-card-new {
-        max-width: 18rem;
-    }
-
-    .slider-container {
-        min-height: 220px;
-    }
-}
-
-/* small devices */
-@media only screen and (max-width: 420px) {
-    .sticky-header {
-        display: none !important;
-    }
-
-    #home-right-bar-container {
-        position: unset;
-        top: unset;
-    }
-
-    .slider-container {
-        min-height: 100px;
-    }
-
-    .advertisement-four-container {
-        min-height: 992px;
-
-        .advertisement-container-block {
-            min-height: 425px;
-        }
-
-        .offers-ct-panel {
-            min-height: 425px;
-        }
-    }
-}
-
-/* very small devices */
-@media only screen and (max-width: 320px) {
-    .sticky-header {
-        display: none !important;
-    }
-
-    #home-right-bar-container {
-        position: unset;
-        top: unset;
-    }
-
-    .quick-view-in-list {
-        display: none;
-    }
-
-    .slider-container {
-        min-height: 100px;
-    }
-
-    .advertisement-four-container {
-        min-height: 992px;
-
-        .advertisement-container-block {
-            min-height: 425px;
-        }
-
-        .offers-ct-panel {
-            min-height: 425px;
-        }
     }
 }
