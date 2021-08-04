@@ -26,6 +26,6 @@
     "material-icons": "^0.3.1",
     "vee-validate": "^2.2.15",
     "vue-slider-component": "^3.1.0",
-    "vue-toast-notification": "0.0.2"
+    "vue-toast-notification": "0.6.2"
   }
 }
