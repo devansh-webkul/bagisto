@@ -44,7 +44,7 @@
                     href="{{ route('admin.sales.orders.reorder', $order->id) }}"
                     class="transparent-button px-1 py-1.5 hover:bg-gray-200 dark:text-white dark:hover:bg-gray-800"
                 >
-                    <span class="icon-cart text-2xl"></span> 
+                    <span class="icon-cart text-2xl"></span>
 
                     @lang('admin::app.sales.orders.view.reorder')
                 </a>
@@ -84,7 +84,7 @@
                     @csrf
                 </form>
 
-                <div 
+                <div
                     class="transparent-button px-1 py-1.5 hover:bg-gray-200 dark:text-white dark:hover:bg-gray-800"
                     @click="$emitter.emit('open-confirm-modal', {
                         message: '@lang('admin::app.sales.orders.view.cancel-msg')',
@@ -101,7 +101,7 @@
                     </span>
 
                     <a href="javascript:void(0);">
-                        @lang('admin::app.sales.orders.view.cancel')    
+                        @lang('admin::app.sales.orders.view.cancel')
                     </a>
                 </div>
             @endif
@@ -162,11 +162,11 @@
                                             </p>
 
                                             @if (isset($item->additional['attributes']))
-                                                <p class="text-gray-600 dark:text-gray-300">
-                                                    @foreach ($item->additional['attributes'] as $attribute)
+                                                @foreach ($item->additional['attributes'] as $attribute)
+                                                    <p class="text-gray-600 dark:text-gray-300">
                                                         {{ $attribute['attribute_name'] }} : {{ $attribute['option_label'] }}
-                                                    @endforeach
-                                                </p>
+                                                    </p>
+                                                @endforeach
                                             @endif
 
                                             <p class="text-gray-600 dark:text-gray-300">
@@ -204,7 +204,7 @@
                                             <p class="text-gray-600 dark:text-gray-300">
                                                 @lang('admin::app.sales.orders.view.price-excl-tax', ['price' => core()->formatBasePrice($item->base_price)])
                                             </p>
-                                            
+
                                             <p class="text-gray-600 dark:text-gray-300">
                                                 @lang('admin::app.sales.orders.view.price-incl-tax', ['price' => core()->formatBasePrice($item->base_price_incl_tax)])
                                             </p>
@@ -235,7 +235,7 @@
                                             <p class="text-gray-600 dark:text-gray-300">
                                                 @lang('admin::app.sales.orders.view.sub-total-excl-tax', ['sub_total' => core()->formatBasePrice($item->base_total)])
                                             </p>
-                                            
+
                                             <p class="text-gray-600 dark:text-gray-300">
                                                 @lang('admin::app.sales.orders.view.sub-total-incl-tax', ['sub_total' => core()->formatBasePrice($item->base_total_incl_tax)])
                                             </p>
@@ -258,7 +258,7 @@
                                 <p class="font-semibold !leading-5 text-gray-600 dark:text-gray-300">
                                     @lang('admin::app.sales.orders.view.summary-sub-total-excl-tax')
                                 </p>
-                                
+
                                 <p class="font-semibold !leading-5 text-gray-600 dark:text-gray-300">
                                     @lang('admin::app.sales.orders.view.summary-sub-total-incl-tax')
                                 </p>
@@ -273,7 +273,7 @@
                                     <p class="!leading-5 text-gray-600 dark:text-gray-300">
                                         @lang('admin::app.sales.orders.view.shipping-and-handling-excl-tax')
                                     </p>
-                                    
+
                                     <p class="!leading-5 text-gray-600 dark:text-gray-300">
                                         @lang('admin::app.sales.orders.view.shipping-and-handling-incl-tax')
                                     </p>
@@ -318,7 +318,7 @@
                                 <p class="font-semibold !leading-5 text-gray-600 dark:text-gray-300">
                                     {{ core()->formatBasePrice($order->base_sub_total) }}
                                 </p>
-                                
+
                                 <p class="font-semibold !leading-5 text-gray-600 dark:text-gray-300">
                                     {{ core()->formatBasePrice($order->base_sub_total_incl_tax) }}
                                 </p>
@@ -337,7 +337,7 @@
                                     <p class="!leading-5 text-gray-600 dark:text-gray-300">
                                         {{ core()->formatBasePrice($order->base_shipping_amount) }}
                                     </p>
-                                    
+
                                     <p class="!leading-5 text-gray-600 dark:text-gray-300">
                                         {{ core()->formatBasePrice($order->base_shipping_amount_incl_tax) }}
                                     </p>
