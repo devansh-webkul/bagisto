@@ -321,8 +321,6 @@ class ProductController extends Controller
      */
     public function search()
     {
-        $results = [];
-
         $searchEngine = 'database';
 
         if (
@@ -336,14 +334,21 @@ class ProductController extends Controller
             })->toArray();
         }
 
+        $params = [
+            'index'      => $indexNames ?? null,
+            'name'       => request('query'),
+            'type'       => request('type'),
+            'sort'       => 'created_at',
+            'order'      => 'desc',
+        ];
+
+        if (request()->has('exclude_customizable_products')) {
+            $params['exclude_customizable_products'] = request('exclude_customizable_products');
+        }
+
         $products = $this->productRepository
             ->setSearchEngine($searchEngine)
-            ->getAll([
-                'index' => $indexNames ?? null,
-                'name'  => request('query'),
-                'sort'  => 'created_at',
-                'order' => 'desc',
-            ]);
+            ->getAll($params);
 
         return ProductResource::collection($products);
     }
