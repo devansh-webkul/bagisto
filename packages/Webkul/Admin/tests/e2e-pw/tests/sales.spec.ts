@@ -121,9 +121,6 @@ test.describe("sales management", () => {
     test("should be able to comment on order", async ({ adminPage }) => {
         await generateOrder(adminPage);
 
-        await adminPage.goto("admin/sales/orders");
-        await adminPage.locator(".row > div:nth-child(4) > a").first().click();
-
         await adminPage.getByRole('textbox', { name: 'Write your comment' }).click();
         await adminPage.getByRole('textbox', { name: 'Write your comment' }).fill(generateDescription());
         await adminPage.getByRole('button', { name: '' }).click();
@@ -135,8 +132,6 @@ test.describe("sales management", () => {
     test("should be able to reorder", async ({ adminPage }) => {
         await generateOrder(adminPage);
 
-        await adminPage.goto("admin/sales/orders");
-        await adminPage.locator(".row > div:nth-child(4) > a").first().click();
         await adminPage.getByRole("link", { name: " Reorder" }).click();
 
         await expect(adminPage.getByText("Cart Items")).toBeVisible();
@@ -212,9 +207,6 @@ test.describe("sales management", () => {
     test("should be able to create invoice", async ({ adminPage }) => {
         await generateOrder(adminPage);
 
-        await adminPage.goto("admin/sales/orders");
-        await adminPage.locator(".row > div:nth-child(4) > a").first().click();
-
         await adminPage.getByText('Invoice', { exact: true }).click();
         await adminPage.locator('#can_create_transaction').nth(1).click();
         await adminPage.getByRole('button', { name: 'Create Invoice' }).click();
@@ -236,9 +228,6 @@ test.describe("sales management", () => {
     test("should be able to create shipment", async ({ adminPage }) => {
         await generateOrder(adminPage);
 
-        await adminPage.goto("admin/sales/orders");
-        await adminPage.locator(".row > div:nth-child(4) > a").first().click();
-
         await adminPage.getByText('Ship', { exact: true }).click();
         await adminPage.getByRole('textbox', { name: 'Carrier Name' }).click();
         await adminPage.getByRole('textbox', { name: 'Carrier Name' }).fill(generateName());
@@ -256,9 +245,6 @@ test.describe("sales management", () => {
         /**
          * Create invoice first.
          */
-        await adminPage.goto("admin/sales/orders");
-        await adminPage.locator(".row > div:nth-child(4) > a").first().click();
-
         await adminPage.getByText('Invoice', { exact: true }).click();
         await adminPage.locator('#can_create_transaction').nth(1).click();
         await adminPage.getByRole('button', { name: 'Create Invoice' }).click();
@@ -268,9 +254,6 @@ test.describe("sales management", () => {
         /**
          * Create refund.
          */
-        await adminPage.goto("admin/sales/orders");
-        await adminPage.locator(".row > div:nth-child(4) > a").first().click();
-
         await adminPage.getByText('Refund', { exact: true }).first().click();
         await adminPage.getByRole('button', { name: 'Refund' }).click();
 
@@ -281,9 +264,6 @@ test.describe("sales management", () => {
 
     test("should be able to cancel order", async ({ adminPage }) => {
         await generateOrder(adminPage);
-
-        await adminPage.goto("admin/sales/orders");
-        await adminPage.locator(".row > div:nth-child(4) > a").first().click();
 
         await adminPage.getByRole('link', { name: 'Cancel' }).click();
         await adminPage.getByRole('button', { name: 'Agree', exact: true }).click();
