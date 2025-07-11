@@ -16,7 +16,20 @@ export const test = base.extend<AdminFixtures>({
         const authExists = fs.existsSync(ADMIN_AUTH_STATE_PATH);
 
         const context = await browser.newContext(
-            authExists ? { storageState: ADMIN_AUTH_STATE_PATH } : {}
+            authExists ? {
+                storageState: ADMIN_AUTH_STATE_PATH,
+                viewport: { width: 1920, height: 1080 },
+                deviceScaleFactor: 1,
+                screen: { width: 1920, height: 1080 },
+                hasTouch: false,
+                isMobile: false,
+            } : {
+                viewport: { width: 1920, height: 1080 },
+                deviceScaleFactor: 1,
+                screen: { width: 1920, height: 1080 },
+                hasTouch: false,
+                isMobile: false,
+            }
         );
 
         const page = await context.newPage();
