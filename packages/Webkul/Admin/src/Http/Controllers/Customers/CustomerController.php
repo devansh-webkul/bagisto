@@ -64,9 +64,9 @@ class CustomerController extends Controller
         }
 
         $channels = core()->getAllChannels();
-        
+
         $groups = $this->customerGroupRepository->findWhere([['code', '<>', 'guest']]);
-        
+
         return view('admin::customers.customers.index', compact('channels', 'groups'));
     }
 
