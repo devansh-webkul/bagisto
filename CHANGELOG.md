@@ -6,6 +6,8 @@ This changelog consists of the bug & security fixes and new features being inclu
 
 * Merged all bug fixes and improvements from version 2.3.
 
+* Added pest and playwright testcases.
+
 ## **v2.4.0-beta2 (17th of February 2026)** - **Release**
 
 * Updated the translations for all the dummy products.
