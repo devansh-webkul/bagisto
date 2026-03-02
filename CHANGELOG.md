@@ -8,6 +8,8 @@ This changelog consists of the bug & security fixes and new features being inclu
 
 - #11034 [fixed] - Fixed an issue where the `createOrderIfNotThenRetry` method caused an infinite loop by adding a configurable max retry attempts limit.
 
+- #10876 [fixed] - Fixed an issue where customers were unable to resubscribe to the newsletter after unsubscribing or after an admin changed their subscription status from True to False.
+
 - #10828 [fixed] - Fixed an issue in the customer order view where the parent SKU was being displayed instead of the variant SKU for configurable products.
 
 - #10827 [fixed] - Fixed an issue where customers from one channel could see orders from another channel. Now customers are bound to a specific channel at registration and login, ensuring orders are channel-specific.
