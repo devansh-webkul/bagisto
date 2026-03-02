@@ -4980,9 +4980,11 @@ return [
         'csv' => 'CSV',
         'download' => '下载',
         'export' => '导出',
+        'no' => '否',
         'no-records' => '没有要导出的内容',
         'xls' => 'XLS',
         'xlsx' => 'XLSX',
+        'yes' => '是',
     ],
 
     'validations' => [

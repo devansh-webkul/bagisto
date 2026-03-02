@@ -10,6 +10,8 @@ This changelog consists of the bug & security fixes and new features being inclu
 
 - #10876 [fixed] - Fixed an issue where customers were unable to resubscribe to the newsletter after unsubscribing or after an admin changed their subscription status from True to False.
 
+- #10854 [fixed] - Fixed an issue where incomplete product data was exported in CSV, XLS, and XLSX formats.
+
 - #10828 [fixed] - Fixed an issue in the customer order view where the parent SKU was being displayed instead of the variant SKU for configurable products.
 
 - #10827 [fixed] - Fixed an issue where customers from one channel could see orders from another channel. Now customers are bound to a specific channel at registration and login, ensuring orders are channel-specific.

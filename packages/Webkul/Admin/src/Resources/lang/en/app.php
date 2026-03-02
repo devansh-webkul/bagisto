@@ -4980,9 +4980,11 @@ return [
         'csv' => 'CSV',
         'download' => 'Download',
         'export' => 'Export',
+        'no' => 'No',
         'no-records' => 'Nothing to export',
         'xls' => 'XLS',
         'xlsx' => 'XLSX',
+        'yes' => 'Yes',
     ],
 
     'validations' => [

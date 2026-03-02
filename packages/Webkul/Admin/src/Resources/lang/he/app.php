@@ -4980,9 +4980,11 @@ return [
         'csv' => 'CSV',
         'download' => 'הורדה',
         'export' => 'ייצוא',
+        'no' => 'לא',
         'no-records' => 'אין מידע לייצוא',
         'xls' => 'XLS',
         'xlsx' => 'XLSX',
+        'yes' => 'כן',
     ],
 
     'validations' => [
