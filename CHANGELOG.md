@@ -2,9 +2,9 @@
 
 This changelog consists of the bug & security fixes and new features being included in the releases listed below.
 
-## Unreleased
+## **v2.3.13 (2nd of March 2026)** - *Release*
 
-- Fixed catalog rule condition validation where boolean value `0` was being incorrectly treated as empty and causing the condition to fail.
+- Fixed catalog rule and cart rule condition validation where boolean value `0` was being incorrectly treated as empty and causing the condition to fail.
 
 - #11034 [fixed] - Fixed an issue where the `createOrderIfNotThenRetry` method caused an infinite loop by adding a configurable max retry attempts limit.
 
