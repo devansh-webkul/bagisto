@@ -42,9 +42,9 @@ export class OrderPage extends BasePage {
         });
     }
 
-    private cartItemRow(productName: string) {
+    private cartItem(productName: string) {
         return this.page
-            .locator("div.flex")
+            .locator("div.grid.gap-y-6")
             .filter({ has: this.page.getByRole("link", { name: productName, exact: true }) });
     }
 
@@ -131,6 +131,6 @@ export class OrderPage extends BasePage {
     async expectCartContains(productName: string): Promise<void> {
         await this.visit("checkout/cart");
 
-        await expect(this.cartItemRow(productName).first()).toBeVisible();
+        await expect(this.cartItem(productName)).toHaveCount(1);
     }
 }

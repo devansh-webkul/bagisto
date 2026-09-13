@@ -77,6 +77,10 @@ export const test = base.extend<Fixtures>({
             authExists ? { storageState: ADMIN_AUTH_STATE_PATH } : {},
         );
 
+        await context.addInitScript(() => {
+            window.localStorage.removeItem("datagrids");
+        });
+
         const page = await context.newPage();
 
         if (!authExists) {

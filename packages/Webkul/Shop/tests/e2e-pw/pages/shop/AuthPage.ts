@@ -47,6 +47,10 @@ export class AuthPage extends BasePage {
         return this.page.getByRole("button", { name: "Sign In" });
     }
 
+    private get resetPasswordButton() {
+        return this.page.getByRole("button", { name: "Reset Password" });
+    }
+
     private get logoutLink() {
         return this.page.getByRole("link", { name: "Logout" });
     }
@@ -91,19 +95,28 @@ export class AuthPage extends BasePage {
         await expect(this.page.getByText(expectedMessage).first()).toBeVisible();
     }
 
-    async attemptRegister(credentials: CustomerCredentials): Promise<void> {
+    async attemptRegister(
+        credentials: CustomerCredentials,
+        confirmPassword: string = credentials.password,
+    ): Promise<void> {
         await this.openSignUpForm();
         await this.firstNameInput.fill(credentials.firstName);
         await this.lastNameInput.fill(credentials.lastName);
         await this.emailInput.fill(credentials.email);
         await this.passwordInput.fill(credentials.password);
-        await this.confirmPasswordInput.fill(credentials.password);
+        await this.confirmPasswordInput.fill(confirmPassword);
 
         if (await this.agreementLabel.count()) {
             await this.agreementLabel.click();
         }
 
         await this.registerButton.click();
+    }
+
+    async requestPasswordReset(email: string): Promise<void> {
+        await this.visit("customer/forgot-password");
+        await this.emailInput.fill(email);
+        await this.resetPasswordButton.click();
     }
 
     async openSignInForm(): Promise<void> {
@@ -187,6 +200,18 @@ export class AuthPage extends BasePage {
     async expectRegistrationRefused(message: string): Promise<void> {
         await expect(this.page).toHaveURL(/customer\/register/);
         await expect(this.page.getByText(message).first()).toBeVisible();
+    }
+
+    async expectResetLinkSent(): Promise<void> {
+        await expect(
+            this.page.getByText("We have e-mailed your reset password link.").first(),
+        ).toBeVisible();
+    }
+
+    async expectResetRefusedForUnknownEmail(): Promise<void> {
+        await expect(
+            this.page.getByText("We cannot find a user with that email address.").first(),
+        ).toBeVisible();
     }
 
     async expectPasswordMasked(field: PasswordField): Promise<void> {

@@ -1,4 +1,5 @@
 import { ProductListPage } from "../../../../pages/admin/catalog/products/ProductListPage";
+import { ProductEditPage } from "../../../../pages/admin/catalog/products/ProductEditPage";
 import type { BaseProduct } from "../../../../pages/types/product.types";
 import { uniqueStamp } from "../../../../utils/faker";
 import { test } from "../../../../setup";
@@ -8,7 +9,8 @@ import { RuleCreatePage } from "../../../../pages/admin/marketing/promotion/Rule
 import { RuleApplyPage } from "../../../../pages/shop/rules/RuleApplyPage";
 import { Page } from "@playwright/test";
 
-let generatedSku: string;
+const PRODUCT_CATEGORY = "Mens";
+const OTHER_CATEGORY = "Womens";
 
 let product: BaseProduct;
 let createdRules: string[];
@@ -16,10 +18,9 @@ let createdRules: string[];
 test.beforeEach(async ({ adminPage }) => {
     createdRules = [];
 
-    generatedSku = `SKU-${uniqueStamp()}`;
     product = await new ProductCreatePage(adminPage).createProduct({
         type: "simple",
-        sku: generatedSku,
+        sku: `SKU-${uniqueStamp()}`,
         name: `Simple-${uniqueStamp()}`,
         shortDescription: "Short desc",
         description: "Full desc",
@@ -27,6 +28,12 @@ test.beforeEach(async ({ adminPage }) => {
         weight: 1,
         inventory: 100,
     });
+
+    const productEditPage = new ProductEditPage(adminPage);
+
+    await productEditPage.openProduct(product.name);
+    await productEditPage.assignCategory(PRODUCT_CATEGORY);
+    await productEditPage.save();
 });
 
 test.afterEach(async ({ adminPage }) => {
@@ -37,90 +44,51 @@ test.afterEach(async ({ adminPage }) => {
     }
 });
 
-async function runCatalogRuleTest({
-    adminPage,
-    shopPage,
-    operator,
-    value,
-    type,
-}: {
-    adminPage: Page;
-    shopPage: Page;
-    operator: string;
-    value: string;
-    type: string;
-}) {
+async function createCategoryRule(
+    adminPage: Page,
+    { operator, category, type }: { operator: string; category: string; type: string },
+): Promise<number> {
     const ruleCreatePage = new RuleCreatePage(adminPage);
-    const ruleApplyPage = new RuleApplyPage(shopPage);
 
     const rule = await ruleCreatePage.catalogRuleCreationFlow();
     createdRules.push(rule.name);
 
     const discountValue = await ruleCreatePage.addCondition({
         scopeSku: product.sku,
-        attribute: "product|sku",
+        attribute: "product|category_ids",
         operator,
-        value,
+        checkboxSelect: category,
         couponType: type,
     });
 
     await ruleCreatePage.saveCatalogRule();
 
-    await ruleApplyPage.verifyCatalogRule({
-        productName: product.name,
-        price: product.price ?? 0,
-        value: discountValue ?? 0,
-        type: type,
-    });
+    return discountValue ?? 0;
 }
 
 const testCases = [
     {
-        operator: "==",
-        value: () => generatedSku,
-        label: "is equal to",
-        type: "percentage",
-    },
-    {
-        operator: "==",
-        value: () => generatedSku,
-        label: "is equal to",
-        type: "fixed",
-    },
-    {
-        operator: "!=",
-        value: () => "sku-123",
-        label: "is not equal to",
-        type: "percentage",
-    },
-    {
-        operator: "!=",
-        value: () => "sku-123",
-        label: "is not equal to",
-        type: "fixed",
-    },
-    {
         operator: "{}",
-        value: () => generatedSku,
-        label: "contains",
+        category: PRODUCT_CATEGORY,
+        label: "contains the product category",
         type: "percentage",
     },
     {
         operator: "{}",
-        value: () => generatedSku,
-        label: "contains",
+        category: PRODUCT_CATEGORY,
+        label: "contains the product category",
         type: "fixed",
     },
     {
         operator: "!{}",
-        value: () => "example",
-        label: "does not contain",
+        category: OTHER_CATEGORY,
+        label: "does not contain another category",
         type: "percentage",
     },
     {
         operator: "!{}",
-        value: () => "example",
-        label: "does not contain",
+        category: OTHER_CATEGORY,
+        label: "does not contain another category",
         type: "fixed",
     },
 ];
@@ -128,18 +96,35 @@ const testCases = [
 test.describe("catalog rules", () => {
     test.describe("product attribute conditions", () => {
         for (const tc of testCases) {
-            test(`should apply coupon when category condition -> ${tc.label} (${tc.type})`, async ({
+            test(`should discount the product when category condition -> ${tc.label} (${tc.type})`, async ({
                 adminPage,
                 shopPage,
             }) => {
-                await runCatalogRuleTest({
-                    adminPage,
-                    shopPage,
-                    operator: tc.operator,
-                    value: tc.value(),
+                const discountValue = await createCategoryRule(adminPage, tc);
+
+                await new RuleApplyPage(shopPage).verifyCatalogRule({
+                    productName: product.name,
+                    price: product.price ?? 0,
+                    value: discountValue,
                     type: tc.type,
                 });
             });
         }
+
+        test("should leave the price untouched when the product is not in the category", async ({
+            adminPage,
+            shopPage,
+        }) => {
+            await createCategoryRule(adminPage, {
+                operator: "{}",
+                category: OTHER_CATEGORY,
+                type: "percentage",
+            });
+
+            await new RuleApplyPage(shopPage).expectNoCatalogDiscount(
+                product.name,
+                product.price ?? 0,
+            );
+        });
     });
 });

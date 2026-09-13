@@ -35,6 +35,10 @@ test.describe("cms management", () => {
         await cmsPage.expectPublishedOnStorefront(page.urlKey, page.content);
     });
 
+    test("should offer the blocks control in the content editor", async () => {
+        await cmsPage.expectBlocksControlOffered();
+    });
+
     test("should reject a page without its required fields", async () => {
         await cmsPage.submitEmptyCreateForm();
 

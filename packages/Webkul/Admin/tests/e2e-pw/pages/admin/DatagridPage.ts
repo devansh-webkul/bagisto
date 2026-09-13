@@ -43,10 +43,30 @@ export abstract class DatagridPage extends BasePage {
         });
     }
 
-    protected async rowWithColumnValue(
-        column: string,
-        value: string,
-    ): Promise<Locator> {
+    protected get filterToggle(): Locator {
+        return this.page
+            .locator("span")
+            .filter({ hasText: /^\s*Filter\s*$/ })
+            .filter({ visible: true });
+    }
+
+    protected get applyFiltersButton(): Locator {
+        return this.page
+            .locator("div.sticky")
+            .getByRole("button", { name: "Apply Filters" })
+            .filter({ visible: true });
+    }
+
+    protected filterSection(columnLabel: string): Locator {
+        return this.page
+            .locator("p.text-xs.font-medium", {
+                hasText: new RegExp(`^\\s*${escapeRegExp(columnLabel)}\\s*$`),
+            })
+            .filter({ visible: true })
+            .locator("xpath=ancestor::div[2]");
+    }
+
+    protected async columnPosition(column: string): Promise<number> {
         const headers = await this.page
             .locator("div.row.datagrid-head > p")
             .allInnerTexts();
@@ -56,6 +76,21 @@ export abstract class DatagridPage extends BasePage {
         if (!position) {
             throw new Error(`The grid has no "${column}" column`);
         }
+
+        return position;
+    }
+
+    protected async cellOf(row: Locator, column: string): Promise<Locator> {
+        const position = await this.columnPosition(column);
+
+        return row.locator(`:scope > p:nth-child(${position})`);
+    }
+
+    protected async rowWithColumnValue(
+        column: string,
+        value: string,
+    ): Promise<Locator> {
+        const position = await this.columnPosition(column);
 
         return this.gridRows.filter({
             has: this.page.locator(`:scope > p:nth-child(${position})`, {
@@ -135,6 +170,55 @@ export abstract class DatagridPage extends BasePage {
         ]);
     }
 
+    protected async applyDropdownFilter(
+        columnLabel: string,
+        option: string,
+    ): Promise<void> {
+        await this.filterToggle.click();
+
+        const section = this.filterSection(columnLabel);
+
+        await section.getByRole("button", { name: "Select" }).click();
+        await section
+            .locator("li")
+            .filter({ hasText: new RegExp(`^\\s*${escapeRegExp(option)}\\s*$`) })
+            .click();
+
+        await Promise.all([
+            this.page.waitForResponse((response) =>
+                isGridFilterResponse(response.url(), option),
+            ),
+            this.applyFiltersButton.click(),
+        ]);
+
+        await this.expectFilterDrawerClosed();
+    }
+
+    protected async applyTextFilter(
+        columnLabel: string,
+        value: string,
+    ): Promise<void> {
+        await this.filterToggle.click();
+
+        const input = this.filterSection(columnLabel).getByPlaceholder(columnLabel);
+
+        await input.fill(value);
+        await input.press("Enter");
+
+        await Promise.all([
+            this.page.waitForResponse((response) =>
+                isGridFilterResponse(response.url(), value),
+            ),
+            this.applyFiltersButton.click(),
+        ]);
+
+        await this.expectFilterDrawerClosed();
+    }
+
+    protected async expectFilterDrawerClosed(): Promise<void> {
+        await expect(this.applyFiltersButton).toBeHidden();
+    }
+
     protected async expectSearchedRowCount(
         text: string,
         count: number,
@@ -148,16 +232,18 @@ export abstract class DatagridPage extends BasePage {
     protected async deleteRow(
         text: string,
         successMessage: string,
+        timeout?: number,
     ): Promise<void> {
         await this.deleteIcon(text).click();
         await this.agreeButton.click();
 
-        await expect(this.flashMessage(successMessage)).toBeVisible();
+        await expect(this.flashMessage(successMessage)).toBeVisible({ timeout });
     }
 
     protected async deleteRowsIfPresent(
         texts: string[],
         successMessage: string,
+        timeout?: number,
     ): Promise<void> {
         const failures: string[] = [];
 
@@ -167,7 +253,7 @@ export abstract class DatagridPage extends BasePage {
                 await this.searchFor(text);
 
                 if (await this.row(text).count()) {
-                    await this.deleteRow(text, successMessage);
+                    await this.deleteRow(text, successMessage, timeout);
                 }
             } catch (error) {
                 failures.push(`${text}: ${error}`);
@@ -247,4 +333,10 @@ function isGridSearchResponse(url: string, term: string): boolean {
     const decoded = decodeURIComponent(url).replace(/\+/g, " ");
 
     return decoded.includes("filters[all]") && decoded.includes(term);
+}
+
+function isGridFilterResponse(url: string, value: string): boolean {
+    const decoded = decodeURIComponent(url).replace(/\+/g, " ");
+
+    return decoded.includes("filters[") && decoded.includes(value);
 }

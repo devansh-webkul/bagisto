@@ -52,13 +52,15 @@ export class CheckoutHelper extends BasePage {
     }
 
     protected cardSellingPrice(productName: string) {
-        return this.productCard(productName).locator(
-            "div.flex-wrap > p:not(.line-through)",
-        );
+        return this.productCard(productName)
+            .locator("div.flex-wrap > p:not(.line-through):not(.price-label)")
+            .filter({ visible: true });
     }
 
     protected cardStruckPrice(productName: string) {
-        return this.productCard(productName).locator("div.flex-wrap > p.line-through");
+        return this.productCard(productName)
+            .locator("div.flex-wrap > p.line-through")
+            .filter({ visible: true });
     }
 
     protected get productForm() {
@@ -103,6 +105,32 @@ export class CheckoutHelper extends BasePage {
 
     private get savedBillingAddressOptions() {
         return this.page.locator('label[for^="billing_address_id_"]');
+    }
+
+    private get guestCountrySelect() {
+        return this.page.locator('select[name="billing\\.country"]');
+    }
+
+    private get guestStateSelect() {
+        return this.page.locator('select[name="billing\\.state"]');
+    }
+
+    private get guestStreetInput() {
+        return this.page.getByRole("textbox", { name: "Street Address" });
+    }
+
+    private get freeShippingOption() {
+        return this.page.locator('label[for="free_free"]').filter({ hasText: /\S/ });
+    }
+
+    private get minimumOrderNotice() {
+        return this.page.getByText(/Minimum order amount is/);
+    }
+
+    private get addressUpdatedNotice() {
+        return this.page
+            .getByRole("status")
+            .filter({ hasText: "Your address has been updated" });
     }
 
     private get placeOrderButton() {
@@ -446,8 +474,63 @@ export class CheckoutHelper extends BasePage {
         return this.placeOrder();
     }
 
+    async attemptCheckoutFromCart(): Promise<void> {
+        await this.visit("checkout/cart");
+        await this.dismissCookieNoticeIfShown();
+        await this.proceedToCheckoutLink.click();
+    }
+
+    async changeGuestCountry(country: string): Promise<void> {
+        await this.guestCountrySelect.selectOption(country);
+    }
+
+    async editGuestStreet(street: string): Promise<void> {
+        await this.guestStreetInput.fill(street);
+    }
+
+    async proceedWithEditedAddress(): Promise<void> {
+        await this.proceedButton.click();
+    }
+
     async expectNoShippingStep(): Promise<void> {
         await expect(this.page.locator('label[for="free_free"]')).toHaveCount(0);
+    }
+
+    async expectShippingMethodsOffered(): Promise<void> {
+        await expect(this.freeShippingOption).toBeVisible();
+    }
+
+    async expectSignInRequired(): Promise<void> {
+        await expect(this.page).toHaveURL(/customer\/login/);
+    }
+
+    async expectStillOnCart(): Promise<void> {
+        await expect(this.page).toHaveURL(/checkout\/cart/);
+    }
+
+    async expectMinimumOrderNotice(amount: string): Promise<void> {
+        await expect(this.minimumOrderNotice).toContainText(amount);
+    }
+
+    async expectGuestState(state: string): Promise<void> {
+        await expect(this.guestStateSelect).toHaveValue(state);
+    }
+
+    async expectStateRequiredError(): Promise<void> {
+        await expect(this.page.getByText("The State field is required")).toBeVisible();
+    }
+
+    async expectShippingMethodsNotOffered(): Promise<void> {
+        await expect(this.freeShippingOption).toHaveCount(0);
+    }
+
+    async expectAddressUpdatedNotice(): Promise<void> {
+        await expect(this.addressUpdatedNotice).toBeVisible();
+        await expect(this.proceedButton).toBeVisible();
+    }
+
+    async expectAddressUpdatedNoticeCleared(): Promise<void> {
+        await expect(this.addressUpdatedNotice).toBeHidden();
     }
 }
 

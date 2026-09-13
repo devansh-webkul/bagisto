@@ -535,7 +535,10 @@ export class ProductCreatePage extends BasePage {
         await this.productName.fill(product.name);
         await expect(this.productName).toHaveValue(product.name);
         await expect(this.productUrlKey).toHaveValue(/.+/);
-        await this.productUrlKey.fill(await this.productUrlKey.inputValue());
+
+        product.urlKey = await this.productUrlKey.inputValue();
+
+        await this.productUrlKey.fill(product.urlKey);
         await this.editor.fillInTinymce(
             this.productShortDescription,
             product.shortDescription,

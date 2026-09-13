@@ -77,6 +77,18 @@ export class ProductEditPage extends BasePage {
         return this.page.getByText("Product updated successfully");
     }
 
+    private get statusInput() {
+        return this.page.locator('input[type="checkbox"][name="status"]');
+    }
+
+    private get statusToggle() {
+        return this.page.locator('label[for="status"]');
+    }
+
+    private get validationErrors() {
+        return this.page.locator("p.text-red-600");
+    }
+
     private get taxCategoryField() {
         return this.page.locator(
             'div.relative:has(> div[name="tax_category_id"])',
@@ -213,6 +225,33 @@ export class ProductEditPage extends BasePage {
         await this.verifyProductUpdated();
     }
 
+    async updatePrice(name: string, price: string): Promise<void> {
+        await this.openProduct(name);
+        await this.fillPrice(price);
+        await this.saveProduct();
+        await this.verifyProductUpdated();
+    }
+
+    async setStatus(name: string, enabled: boolean): Promise<void> {
+        await this.openProduct(name);
+
+        if ((await this.statusInput.isChecked()) !== enabled) {
+            await this.statusToggle.click();
+        }
+
+        await expect(this.statusInput).toBeChecked({ checked: enabled });
+
+        await this.saveProduct();
+        await this.verifyProductUpdated();
+    }
+
+    async submitWithoutRequiredFields(name: string): Promise<void> {
+        await this.openProduct(name);
+        await this.nameInput.fill("");
+        await this.priceInput.fill("");
+        await this.saveProduct();
+    }
+
     async verifyProductUpdated() {
         await expect(this.updatedMessage).toBeVisible();
     }
@@ -221,5 +260,21 @@ export class ProductEditPage extends BasePage {
         await expect(
             this.page.getByText("Product created successfully"),
         ).toBeVisible();
+    }
+
+    async expectPriceInEditForm(name: string, price: string): Promise<void> {
+        await this.openProduct(name);
+
+        await expect(this.priceInput).toHaveValue(new RegExp(`^${price}(\\.0+)?$`));
+    }
+
+    async expectValidationError(message: string): Promise<void> {
+        await expect(
+            this.validationErrors.filter({ hasText: message }).first(),
+        ).toBeVisible();
+    }
+
+    async expectStillOnEditForm(): Promise<void> {
+        await expect(this.page).toHaveURL(/catalog\/products\/edit\/\d+/);
     }
 }

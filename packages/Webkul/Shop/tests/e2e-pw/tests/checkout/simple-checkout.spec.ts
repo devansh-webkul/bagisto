@@ -4,11 +4,14 @@ import { ProductListPage } from "../../pages/admin/catalog/products/ProductListP
 import { AdminOrderPage } from "../../pages/admin/sales/AdminOrderPage";
 import { OrderPage } from "../../pages/shop/OrderPage";
 import { SimpleProductCheckout } from "../../pages/shop/checkout/product-types/SimpleProductCheckout";
+import { setConfigSwitch } from "../../utils/admin";
 import { loginAsCustomer, addAddress } from "../../utils/customer";
 import { uniqueStamp } from "../../utils/faker";
 import { FLAT_RATE, formatPrice } from "../../utils/prices";
 
 const PRICE = 199;
+const CHECKOUT_CONFIG_PATH = "admin/configuration/sales/checkout";
+const GUEST_CHECKOUT_FIELD = "sales[checkout][shopping_cart][allow_guest_checkout]";
 
 test.describe("simple product checkout", () => {
     let productName: string;
@@ -49,12 +52,26 @@ test.describe("simple product checkout", () => {
         );
     });
 
-    test("should place an order as a guest", async ({ adminPage, shopPage }) => {
-        const checkout = new SimpleProductCheckout(shopPage);
+    test("should place an order as a guest while guest checkout is enabled", async ({
+        adminPage,
+        shopPage,
+    }) => {
+        const original = await setConfigSwitch(
+            adminPage,
+            CHECKOUT_CONFIG_PATH,
+            GUEST_CHECKOUT_FIELD,
+            true,
+        );
 
-        const orderId = await checkout.checkout(productName, { address: "guest" });
+        try {
+            const checkout = new SimpleProductCheckout(shopPage);
 
-        await new AdminOrderPage(adminPage).expectStatus(orderId, "Pending");
+            const orderId = await checkout.checkout(productName, { address: "guest" });
+
+            await new AdminOrderPage(adminPage).expectStatus(orderId, "Pending");
+        } finally {
+            await setConfigSwitch(adminPage, CHECKOUT_CONFIG_PATH, GUEST_CHECKOUT_FIELD, original);
+        }
     });
 
     test("should place an order with a new address entered at checkout", async ({

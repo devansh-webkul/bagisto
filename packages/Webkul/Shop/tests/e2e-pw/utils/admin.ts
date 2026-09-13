@@ -50,6 +50,55 @@ export async function setConfigSwitch(
     return original;
 }
 
+export interface MinimumOrderSetting {
+    enabled: boolean;
+    amount: string;
+}
+
+const ORDER_SETTINGS_PATH = "admin/configuration/sales/order_settings";
+const MINIMUM_ORDER_ENABLED_FIELD = "sales[order_settings][minimum_order][enable]";
+const MINIMUM_ORDER_AMOUNT_FIELD =
+    "sales[order_settings][minimum_order][minimum_order_amount]";
+
+export async function setMinimumOrder(
+    adminPage: Page,
+    setting: MinimumOrderSetting,
+): Promise<MinimumOrderSetting> {
+    await adminPage.goto(ORDER_SETTINGS_PATH);
+
+    const checkbox = adminPage.locator(
+        `input[type="checkbox"][name="${MINIMUM_ORDER_ENABLED_FIELD}"]`,
+    );
+    const amountInput = adminPage.locator(`input[name="${MINIMUM_ORDER_AMOUNT_FIELD}"]`);
+
+    await expect(checkbox).toBeAttached();
+
+    const original: MinimumOrderSetting = {
+        enabled: await checkbox.isChecked(),
+        amount: (await amountInput.count()) ? await amountInput.inputValue() : "",
+    };
+
+    if (original.enabled !== setting.enabled) {
+        await adminPage
+            .locator(`label:has(> input[type="checkbox"][name="${MINIMUM_ORDER_ENABLED_FIELD}"])`)
+            .click();
+
+        await expect(checkbox).toBeChecked({ checked: setting.enabled });
+    }
+
+    if (setting.enabled) {
+        await amountInput.fill(setting.amount);
+
+        await expect(amountInput).toHaveValue(setting.amount);
+    }
+
+    await adminPage.getByRole("button", { name: "Save Configuration" }).click();
+
+    await expect(adminPage.getByText("Configuration saved successfully")).toBeVisible();
+
+    return original;
+}
+
 export async function createTaxRate(adminPage: Page): Promise<string> {
     const identifier = generateSlug("_");
 

@@ -49,6 +49,10 @@ export class CmsPage extends DatagridPage {
         return this.page.locator("input#channels_1");
     }
 
+    private get editorBlocksControl() {
+        return this.page.locator('.tox-tbtn--select[title="Blocks"]');
+    }
+
     private async openCreateForm(): Promise<void> {
         await this.openGrid();
         await this.createLink.click();
@@ -168,6 +172,13 @@ export class CmsPage extends DatagridPage {
         await this.openGrid();
 
         await expect(this.createLink).toHaveCount(0);
+    }
+
+    async expectBlocksControlOffered(): Promise<void> {
+        await this.openCreateForm();
+
+        await expect(this.editorBlocksControl).toBeVisible();
+        await expect(this.editorBlocksControl).toContainText("Paragraph");
     }
 
     async expectValidationError(message: string): Promise<void> {

@@ -15,6 +15,10 @@ class Price extends Product
      */
     public function afterReindex($productIds = null)
     {
+        if (! config('responsecache.enabled')) {
+            return;
+        }
+
         if (is_null($productIds)) {
             ResponseCache::clear();
 
@@ -23,7 +27,11 @@ class Price extends Product
 
         $urls = [];
 
-        foreach ($this->productRepository->findWhereIn('id', $productIds) as $product) {
+        $products = $this->productRepository
+            ->with(['attribute_family', 'attribute_values', 'categories.translations', 'parent'])
+            ->findWhereIn('id', $productIds);
+
+        foreach ($products as $product) {
             $urls = array_merge($urls, $this->getForgettableUrls($product));
         }
 

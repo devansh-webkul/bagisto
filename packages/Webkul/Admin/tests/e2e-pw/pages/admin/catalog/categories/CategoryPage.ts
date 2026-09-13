@@ -144,8 +144,10 @@ export class CategoryPage extends DatagridPage {
 
     async attemptDeleteCategory(name: string): Promise<void> {
         await this.openGrid();
-        await this.searchFor(name);
+        await this.applyTextFilter("Name", name);
+
         const row = await this.rowWithColumnValue("Name", name);
+
         await row.locator("span.icon-delete").click();
         await this.agreeButton.click();
     }
@@ -180,6 +182,11 @@ export class CategoryPage extends DatagridPage {
         ).toBeVisible();
     }
 
+    async filterByParent(parent: string): Promise<void> {
+        await this.openGrid();
+        await this.applyDropdownFilter("Parent Category", parent);
+    }
+
     async expectCategoryListed(
         name: string,
         status: "Active" | "Inactive",
@@ -189,13 +196,31 @@ export class CategoryPage extends DatagridPage {
         await expect(this.row(name)).toContainText(status);
     }
 
+    async expectCategoryParent(name: string, parent: string): Promise<void> {
+        await this.openGrid();
+        await this.searchFor(name);
+
+        const row = await this.rowWithColumnValue("Name", name);
+
+        await expect(row).toHaveCount(1);
+        await expect(await this.cellOf(row, "Parent Category")).toHaveText(parent);
+    }
+
+    async expectFilteredCategoryListed(name: string): Promise<void> {
+        await expect(await this.rowWithColumnValue("Name", name)).toHaveCount(1);
+    }
+
+    async expectFilteredCategoryAbsent(name: string): Promise<void> {
+        await expect(await this.rowWithColumnValue("Name", name)).toHaveCount(0);
+    }
+
     async expectCategoryAbsent(name: string): Promise<void> {
         await this.expectSearchedRowCount(name, 0);
     }
 
     async expectRootCategoryListed(): Promise<void> {
         await this.openGrid();
-        await this.searchFor("Root");
+        await this.applyTextFilter("Name", "Root");
 
         await expect(
             await this.rowWithColumnValue("Name", "Root"),

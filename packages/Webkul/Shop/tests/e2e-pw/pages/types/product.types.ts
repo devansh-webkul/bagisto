@@ -13,6 +13,7 @@ export interface BaseProduct {
     name: string;
     shortDescription: string;
     description: string;
+    urlKey?: string;
     price?: number;
     weight?: number;
     inventory?: number;

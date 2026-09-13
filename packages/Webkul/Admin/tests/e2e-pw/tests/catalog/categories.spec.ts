@@ -85,6 +85,24 @@ test.describe("category management", () => {
         await categoryPage.expectCategoryListed(untouched.name, "Active");
     });
 
+    test("should list a child category with its parent and filter the grid by parent", async () => {
+        const parent = buildCategory();
+        const child = { ...buildCategory(), parent: parent.name };
+        const sibling = buildCategory();
+        created.push(child.name, parent.name, sibling.name);
+
+        await categoryPage.createCategory(parent);
+        await categoryPage.createCategory(child);
+        await categoryPage.createCategory(sibling);
+
+        await categoryPage.expectCategoryParent(child.name, parent.name);
+
+        await categoryPage.filterByParent(parent.name);
+
+        await categoryPage.expectFilteredCategoryListed(child.name);
+        await categoryPage.expectFilteredCategoryAbsent(sibling.name);
+    });
+
     test("should refuse to delete the root category", async () => {
         await categoryPage.attemptDeleteCategory("Root");
 

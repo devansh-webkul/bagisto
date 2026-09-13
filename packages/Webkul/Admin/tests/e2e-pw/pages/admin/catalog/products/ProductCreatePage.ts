@@ -1,6 +1,6 @@
 import { expect, Page } from "@playwright/test";
 import { BasePage } from "../../../BasePage";
-import { generateSKU } from "../../../../utils/faker";
+import { uniqueStamp } from "../../../../utils/faker";
 import { ProductEditPage } from "./ProductEditPage";
 import { BaseProduct } from "../../types/product.types";
 
@@ -29,47 +29,40 @@ export class ProductCreatePage extends BasePage {
         return this.page.getByRole("button", { name: "Save Product" });
     }
 
-    async openProductList() {
-        await this.visit("admin/catalog/products");
-        await expect(this.createButton).toBeVisible();
+    private get validationErrors() {
+        return this.page.locator("p.text-red-600");
     }
 
-    async openCreateModal() {
-        await this.openProductList();
+    private async openCreateModal(): Promise<void> {
+        await this.visit("admin/catalog/products");
+
+        await expect(this.createButton).toBeVisible();
+
         await this.createButton.click();
+
         await expect(this.typeSelect).toBeVisible();
     }
 
-    async fillType(type: string) {
-        await this.typeSelect.selectOption(type);
-    }
-
-    async fillAttributeFamily(attributeFamily: string | { label: string }) {
-        await this.attributeFamilySelect.selectOption(attributeFamily);
-    }
-
-    async fillSku(sku: string) {
-        await this.skuInput.fill(sku);
-    }
-
-    async submit() {
-        await this.saveProductButton.click();
-    }
-
-    async createProduct(
+    private async submitCreateModal(
         type: string,
         attributeFamily: string | { label: string },
         sku: string,
-    ) {
+    ): Promise<void> {
         await this.openCreateModal();
-        await this.fillType(type);
-        await this.fillAttributeFamily(attributeFamily);
-        await this.fillSku(sku);
-        await this.submit();
+        await this.typeSelect.selectOption(type);
+        await this.attributeFamilySelect.selectOption(attributeFamily);
+        await this.skuInput.fill(sku);
+        await this.saveProductButton.click();
     }
 
-    async createSimpleProduct(product: BaseProduct) {
-        await this.createProduct("simple", "1", generateSKU());
+    async attemptCreateProduct(sku: string, type: string = "simple"): Promise<void> {
+        await this.submitCreateModal(type, "1", sku);
+    }
+
+    async createSimpleProduct(product: BaseProduct): Promise<string> {
+        const sku = product.sku ?? `SKU-${uniqueStamp()}`;
+
+        await this.submitCreateModal("simple", "1", sku);
 
         const productEditPage = new ProductEditPage(this.page);
         await productEditPage.waitForForm();
@@ -99,5 +92,14 @@ export class ProductCreatePage extends BasePage {
         }
 
         await productEditPage.saveAndVerifyUpdated();
+
+        return sku;
+    }
+
+    async expectCreateRefused(message: string): Promise<void> {
+        await expect(
+            this.validationErrors.filter({ hasText: message }).first(),
+        ).toBeVisible();
+        await expect(this.typeSelect).toBeVisible();
     }
 }

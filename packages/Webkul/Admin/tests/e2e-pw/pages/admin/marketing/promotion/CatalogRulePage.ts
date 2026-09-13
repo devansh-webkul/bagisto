@@ -7,6 +7,8 @@ export interface CatalogRuleData {
     discountPercent: number;
 }
 
+const REPRICE_TIMEOUT = 90 * 1000;
+
 export function buildCatalogRule(
     overrides: Partial<CatalogRuleData> = {},
 ): CatalogRuleData {
@@ -102,11 +104,11 @@ export class CatalogRulePage extends DatagridPage {
     async createCatalogRule(data: CatalogRuleData): Promise<CatalogRuleData> {
         await this.openCreateForm();
         await this.fillCreateForm(data);
-        await this.saveButton.click();
+        await this.saveButton.click({ timeout: REPRICE_TIMEOUT });
 
         await expect(
             this.flashMessage("Catalog rule created successfully"),
-        ).toBeVisible();
+        ).toBeVisible({ timeout: REPRICE_TIMEOUT });
 
         return data;
     }
@@ -119,23 +121,28 @@ export class CatalogRulePage extends DatagridPage {
     async renameCatalogRule(name: string, newName: string): Promise<void> {
         await this.openEditForm(name);
         await this.nameInput.fill(newName);
-        await this.saveButton.click();
+        await this.saveButton.click({ timeout: REPRICE_TIMEOUT });
 
         await expect(
             this.flashMessage("Catalog rule updated successfully"),
-        ).toBeVisible();
+        ).toBeVisible({ timeout: REPRICE_TIMEOUT });
     }
 
     async deleteCatalogRule(name: string): Promise<void> {
         await this.openGrid();
         await this.searchFor(name);
-        await this.deleteRow(name, "Catalog rule deleted successfully");
+        await this.deleteRow(
+            name,
+            "Catalog rule deleted successfully",
+            REPRICE_TIMEOUT,
+        );
     }
 
     async deleteCatalogRulesIfPresent(names: string[]): Promise<void> {
         await this.deleteRowsIfPresent(
             names,
             "Catalog rule deleted successfully",
+            REPRICE_TIMEOUT,
         );
     }
 

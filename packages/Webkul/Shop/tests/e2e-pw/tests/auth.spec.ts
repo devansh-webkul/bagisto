@@ -1,6 +1,7 @@
 import { test } from "../setup";
 import { AuthPage } from "../pages/shop/AuthPage";
 import { buildCustomerCredentials } from "../utils/customer";
+import { generateEmail } from "../utils/faker";
 
 test.describe("customer authentication", () => {
     test("should register a new customer", async ({ shopPage }) => {
@@ -23,6 +24,23 @@ test.describe("customer authentication", () => {
         await authPage.attemptRegister({ ...buildCustomerCredentials(), email: credentials.email });
 
         await authPage.expectRegistrationRefused("The email has already been taken.");
+    });
+
+    test("should refuse to register when the passwords do not match", async ({
+        shopPage,
+    }) => {
+        const authPage = new AuthPage(shopPage);
+        const credentials = buildCustomerCredentials();
+
+        await authPage.attemptRegister(credentials, `${credentials.password}-other`);
+
+        await authPage.expectRegistrationRefused(
+            "The Password field confirmation does not match",
+        );
+
+        await authPage.attemptLogin(credentials.email, credentials.password);
+
+        await authPage.expectLoginRefused();
     });
 
     test("should sign in a registered customer", async ({ shopPage }) => {
@@ -85,6 +103,26 @@ test.describe("customer authentication", () => {
 
         await authPage.expectLoginAccepted();
         await authPage.expectSignedIn(`${credentials.firstName} ${credentials.lastName}`);
+    });
+
+    test("should send a password reset link to a registered email", async ({
+        shopPage,
+    }) => {
+        const authPage = new AuthPage(shopPage);
+        const credentials = buildCustomerCredentials();
+
+        await authPage.register(credentials);
+        await authPage.requestPasswordReset(credentials.email);
+
+        await authPage.expectResetLinkSent();
+    });
+
+    test("should refuse a password reset for an unknown email", async ({ shopPage }) => {
+        const authPage = new AuthPage(shopPage);
+
+        await authPage.requestPasswordReset(generateEmail());
+
+        await authPage.expectResetRefusedForUnknownEmail();
     });
 
     test("should sign a customer out", async ({ shopPage }) => {

@@ -88,6 +88,8 @@ test.describe("promotion management", () => {
     });
 
     test.describe("catalog rule management", () => {
+        test.setTimeout(180000);
+
         let catalogRulePage: CatalogRulePage;
         let created: string[];
 

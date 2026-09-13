@@ -103,9 +103,9 @@ it('announces a saved catalog rule only after the prices of its products are rei
     $this->mock(CatalogRuleIndex::class)->shouldReceive('cleanProductIndices')->once();
 
     $this->mock(PriceIndexer::class)
-        ->shouldReceive('reindexBatch')
-        ->andReturnUsing(function ($products) use (&$sequence) {
-            $sequence[] = ['reindex', collect($products)->pluck('id')->all()];
+        ->shouldReceive('reindexProducts')
+        ->andReturnUsing(function ($productIds) use (&$sequence) {
+            $sequence[] = ['reindex', $productIds];
         });
 
     recordReindexAnnouncements('promotions.catalog_rule.reindex', $sequence);
@@ -123,9 +123,9 @@ it('announces a removed catalog rule only after the prices of its products are r
     $sequence = [];
 
     $this->mock(PriceIndexer::class)
-        ->shouldReceive('reindexBatch')
-        ->andReturnUsing(function ($products) use (&$sequence) {
-            $sequence[] = ['reindex', collect($products)->pluck('id')->all()];
+        ->shouldReceive('reindexProducts')
+        ->andReturnUsing(function ($productIds) use (&$sequence) {
+            $sequence[] = ['reindex', $productIds];
         });
 
     recordReindexAnnouncements('promotions.catalog_rule.reindex', $sequence);

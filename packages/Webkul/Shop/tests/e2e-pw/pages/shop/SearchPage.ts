@@ -40,7 +40,6 @@ export class SearchPage extends BasePage {
         });
     }
 
-
     async search(term: string): Promise<void> {
         await this.visit("");
         await this.searchInput.fill(term);
@@ -68,7 +67,7 @@ export class SearchPage extends BasePage {
 
     async readProductPrices(): Promise<number[]> {
         const texts = await this.productCards
-            .locator("div.flex-wrap > p:not(.line-through)")
+            .locator("div.flex-wrap > p:not(.line-through):not(.price-label)")
             .allInnerTexts();
 
         return texts.map((text) => parseFloat(text.replace(/[^0-9.]/g, "")));
