@@ -6,6 +6,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\View\View;
 use Webkul\Admin\DataGrids\Settings\LocalesDataGrid;
 use Webkul\Admin\Http\Controllers\Controller;
+use Webkul\Core\Helpers\MediaUpload;
 use Webkul\Core\Repositories\LocaleRepository;
 use Webkul\Core\Rules\Code;
 
@@ -42,7 +43,7 @@ class LocaleController extends Controller
             'name' => 'required',
             'direction' => 'required|in:ltr,rtl',
             'logo_path' => 'array',
-            'logo_path.*' => 'image|extensions:jpeg,jpg,png,svg,webp',
+            'logo_path.*' => [app(MediaUpload::class)->rule(MediaUpload::IMAGE)],
         ]);
 
         $this->localeRepository->create(request()->only([
@@ -78,7 +79,7 @@ class LocaleController extends Controller
             'name' => 'required',
             'direction' => 'required|in:ltr,rtl',
             'logo_path' => 'array',
-            'logo_path.*' => 'image|extensions:jpeg,jpg,png,svg,webp',
+            'logo_path.*' => [app(MediaUpload::class)->rule(MediaUpload::IMAGE)],
         ]);
 
         $this->localeRepository->update(request()->only([

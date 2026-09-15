@@ -22,7 +22,7 @@ class MediaFileName
     /**
      * Extensions an uploaded media file may be stored under, none of which a web server runs or renders as a page.
      */
-    public const ALLOWED_EXTENSIONS = ['avif', 'bmp', 'gif', 'ico', 'jpeg', 'jpg', 'mov', 'mp4', 'ogg', 'ogv', 'png', 'webm', 'webp'];
+    public const ALLOWED_EXTENSIONS = [...MediaUpload::SAFE_IMAGE_EXTENSIONS, ...MediaUpload::SAFE_VIDEO_EXTENSIONS];
 
     /**
      * Extension given to an uploaded file whose type is none of the allowed ones.

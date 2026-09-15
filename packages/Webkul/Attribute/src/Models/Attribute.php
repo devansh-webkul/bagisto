@@ -9,14 +9,44 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Webkul\Attribute\Contracts\Attribute as AttributeContract;
 use Webkul\Attribute\Database\Factories\AttributeFactory;
 use Webkul\Core\Eloquent\TranslatableModel;
+use Webkul\Core\Helpers\MediaUpload;
 use Webkul\Core\Rules\Regex;
 
 class Attribute extends TranslatableModel implements AttributeContract
 {
     use HasFactory;
 
+    /**
+     * The attributes that are translatable.
+     *
+     * @var array
+     */
     public $translatedAttributes = ['name'];
 
+    /**
+     * Attribute type fields.
+     *
+     * @var array
+     */
+    public $attributeTypeFields = [
+        'text' => 'text_value',
+        'textarea' => 'text_value',
+        'price' => 'float_value',
+        'boolean' => 'boolean_value',
+        'select' => 'integer_value',
+        'multiselect' => 'text_value',
+        'datetime' => 'datetime_value',
+        'date' => 'date_value',
+        'file' => 'text_value',
+        'image' => 'text_value',
+        'checkbox' => 'text_value',
+    ];
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
     protected $fillable = [
         'code',
         'admin_name',
@@ -39,25 +69,6 @@ class Attribute extends TranslatableModel implements AttributeContract
     ];
 
     /**
-     * Attribute type fields.
-     *
-     * @var array
-     */
-    public $attributeTypeFields = [
-        'text' => 'text_value',
-        'textarea' => 'text_value',
-        'price' => 'float_value',
-        'boolean' => 'boolean_value',
-        'select' => 'integer_value',
-        'multiselect' => 'text_value',
-        'datetime' => 'datetime_value',
-        'date' => 'date_value',
-        'file' => 'text_value',
-        'image' => 'text_value',
-        'checkbox' => 'text_value',
-    ];
-
-    /**
      * Get the options.
      */
     public function options(): HasMany
@@ -66,7 +77,7 @@ class Attribute extends TranslatableModel implements AttributeContract
     }
 
     /**
-     * Scope a query to only include popular users.
+     * Scope a query to the filterable attributes, leaving out image swatches.
      */
     public function scopeFilterableAttributes(Builder $query): Builder
     {
@@ -76,7 +87,7 @@ class Attribute extends TranslatableModel implements AttributeContract
     }
 
     /**
-     * Returns attribute value table column based attribute type
+     * Get the attribute value column that holds this attribute's type.
      *
      * @return string
      */
@@ -86,7 +97,7 @@ class Attribute extends TranslatableModel implements AttributeContract
     }
 
     /**
-     * Returns attribute validation rules
+     * Get the attribute's validation rules as the product form's Vee Validate object.
      *
      * @return string
      */
@@ -111,11 +122,13 @@ class Attribute extends TranslatableModel implements AttributeContract
         }
 
         if ($this->type == 'image') {
-            $retVal = core()->getConfigData('catalog.products.attribute.image_attribute_upload_size') ?? '2048';
+            $mediaUpload = app(MediaUpload::class);
 
-            if ($retVal) {
-                $validations[] = 'size:'.$retVal.', mimes: ["image/bmp", "image/jpeg", "image/jpg", "image/png", "image/webp"]';
-            }
+            $maxSize = $mediaUpload->maxSize(MediaUpload::IMAGE_ATTRIBUTE);
+
+            $validations[] = $maxSize ? 'size:'.$maxSize : null;
+
+            $validations[] = 'mimes: '.json_encode($mediaUpload->mimeTypes(MediaUpload::IMAGE_ATTRIBUTE), JSON_UNESCAPED_SLASHES);
         }
 
         if ($this->validation == 'regex') {
@@ -132,7 +145,7 @@ class Attribute extends TranslatableModel implements AttributeContract
     }
 
     /**
-     * Create a new factory instance for the model
+     * Create a new factory instance for the model.
      */
     protected static function newFactory(): Factory
     {

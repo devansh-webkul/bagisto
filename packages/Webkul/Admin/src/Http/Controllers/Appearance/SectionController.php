@@ -4,11 +4,13 @@ namespace Webkul\Admin\Http\Controllers\Appearance;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Webkul\Admin\Http\Controllers\Controller;
+use Webkul\Core\Helpers\MediaUpload;
 use Webkul\Core\Models\Channel;
 use Webkul\Theme\Contracts\Section;
 use Webkul\Theme\Repositories\SectionRepository;
@@ -125,6 +127,10 @@ class SectionController extends Controller
             'type' => ['required', Rule::in($this->sectionSchema->types(request('theme_code'))->keys()->all())],
             'channel_id' => 'required|in:'.implode(',', (core()->getAllChannels()->pluck('id')->toArray())),
             'theme_code' => 'required',
+            request('locale').'.options.*.image' => Rule::forEach(fn ($value) => $value instanceof UploadedFile
+                ? [app(MediaUpload::class)->rule(MediaUpload::IMAGE)]
+                : []
+            ),
         ]);
 
         $this->sectionOrFail($id);
@@ -239,7 +245,7 @@ class SectionController extends Controller
     public function uploadMedia(int $id): JsonResponse
     {
         $this->validate(request(), [
-            'file' => 'required|mimes:bmp,jpeg,jpg,png,webp,mp4,webm,ogg|max:51200',
+            'file' => ['required', app(MediaUpload::class)->rule(MediaUpload::SECTION_MEDIA)],
         ]);
 
         $this->sectionOrFail($id);

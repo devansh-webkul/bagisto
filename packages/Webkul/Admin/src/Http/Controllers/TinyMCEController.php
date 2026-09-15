@@ -4,6 +4,7 @@ namespace Webkul\Admin\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Storage;
+use Webkul\Core\Helpers\MediaUpload;
 use Webkul\Core\Traits\Sanitizer;
 
 class TinyMCEController extends Controller
@@ -16,20 +17,6 @@ class TinyMCEController extends Controller
      * @var string
      */
     private $storagePath = 'tinymce';
-
-    /**
-     * Allowed image MIME types.
-     *
-     * @var array
-     */
-    private $allowedMimeTypes = [
-        'image/gif',
-        'image/jpeg',
-        'image/jpg',
-        'image/png',
-        'image/svg+xml',
-        'image/webp',
-    ];
 
     /**
      * Upload file from tinymce.
@@ -58,7 +45,7 @@ class TinyMCEController extends Controller
     }
 
     /**
-     * Store media.
+     * Store the uploaded image, or describe why it was refused in the shape TinyMCE reads.
      *
      * @return array
      */
@@ -68,32 +55,19 @@ class TinyMCEController extends Controller
             return ['error' => trans('admin::app.components.tinymce.errors.no-file-uploaded')];
         }
 
+        $validator = validator(request()->all(), [
+            'file' => [app(MediaUpload::class)->rule(MediaUpload::EDITOR_IMAGE)],
+        ]);
+
+        if ($validator->fails()) {
+            return ['error' => $validator->errors()->first('file')];
+        }
+
         $file = request()->file('file');
-
-        $mimeType = $file->getMimeType();
-
-        if (! in_array($mimeType, $this->allowedMimeTypes)) {
-            return ['error' => trans('admin::app.components.tinymce.errors.invalid-file-type')];
-        }
-
-        $extension = strtolower($file->getClientOriginalExtension());
-
-        $validExtensions = [
-            'image/jpeg' => ['jpg', 'jpeg'],
-            'image/jpg' => ['jpg', 'jpeg'],
-            'image/png' => ['png'],
-            'image/gif' => ['gif'],
-            'image/webp' => ['webp'],
-            'image/svg+xml' => ['svg'],
-        ];
-
-        if (! isset($validExtensions[$mimeType]) || ! in_array($extension, $validExtensions[$mimeType])) {
-            return ['error' => trans('admin::app.components.tinymce.errors.file-extension-mismatch')];
-        }
 
         $path = $file->store($this->storagePath);
 
-        $this->sanitizeSVG($path, $mimeType);
+        $this->sanitizeSVG($path, $file->getMimeType());
 
         return [
             'file' => $path,

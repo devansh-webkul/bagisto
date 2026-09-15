@@ -13,6 +13,7 @@ use Illuminate\Validation\Rules\Enum;
 use Illuminate\View\View;
 use Symfony\Component\Mime\MimeTypes;
 use Webkul\Admin\Mail\Admin\RMA\CustomerToAdminConversationNotification;
+use Webkul\Core\Helpers\MediaUpload;
 use Webkul\Product\Repositories\ProductRepository;
 use Webkul\RMA\Contracts\RMAReason;
 use Webkul\RMA\Enums\DefaultRMAResolution;
@@ -137,7 +138,7 @@ class RMAController extends Controller
             'information' => 'nullable|string',
             'package_condition' => 'nullable|in:open,packed',
             'images' => 'nullable|array|min:1',
-            'images.*' => 'nullable|file|mimetypes:'.core()->getConfigData('sales.rma.setting.allowed_file_extension'),
+            'images.*' => ['nullable', app(MediaUpload::class)->rule(MediaUpload::RMA_ATTACHMENT)],
             'agreement' => 'accepted',
         ]);
 
@@ -426,7 +427,7 @@ class RMAController extends Controller
         $this->validate(request(), [
             'rma_id' => 'required|integer|exists:rma,id',
             'message' => 'nullable|string',
-            'file' => 'nullable|file|mimetypes:'.core()->getConfigData('sales.rma.setting.allowed_file_extension'),
+            'file' => ['nullable', app(MediaUpload::class)->rule(MediaUpload::RMA_ATTACHMENT)],
         ]);
 
         $rma = $this->rmaRepository->findOrFail(request()->input('rma_id'));

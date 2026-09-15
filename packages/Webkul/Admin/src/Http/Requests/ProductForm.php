@@ -9,6 +9,7 @@ use Illuminate\Validation\Rule;
 use Webkul\Admin\Validations\ProductCategoryUniqueSlug;
 use Webkul\Attribute\Enums\AttributeTypeEnum;
 use Webkul\Core\Helpers\MediaFileName;
+use Webkul\Core\Helpers\MediaUpload;
 use Webkul\Core\Rules\Decimal;
 use Webkul\Core\Rules\Regex;
 use Webkul\Core\Rules\Slug;
@@ -19,32 +20,25 @@ use Webkul\Product\Repositories\ProductRepository;
 class ProductForm extends FormRequest
 {
     /**
-     * Rules.
+     * The validation rules built for the request.
      *
      * @var array
      */
     protected $rules;
 
     /**
-     * Product instance.
+     * The product being edited.
      *
      * @var Product
      */
     protected $product;
 
     /**
-     * Product editable attributes.
+     * The attributes of the product the request may edit.
      *
      * @var Collection
      */
     protected $productEditableAttributes;
-
-    /**
-     * Max video upload size.
-     *
-     * @var int
-     */
-    protected $maxVideoFileSize;
 
     /**
      * Create a new form request instance.
@@ -53,10 +47,9 @@ class ProductForm extends FormRequest
      */
     public function __construct(
         protected ProductRepository $productRepository,
-        protected ProductAttributeValueRepository $productAttributeValueRepository
-    ) {
-        $this->maxVideoFileSize = core()->getConfigData('catalog.products.attribute.file_attribute_upload_size') ?: '2048';
-    }
+        protected ProductAttributeValueRepository $productAttributeValueRepository,
+        protected MediaUpload $mediaUpload
+    ) {}
 
     /**
      * Determine if the product is authorized to make this request.
@@ -82,11 +75,11 @@ class ProductForm extends FormRequest
         $this->rules = array_merge($this->product->getTypeInstance()->getTypeValidationRules(), [
             'sku' => ['required', 'unique:products,sku,'.$this->id, new Slug],
             'url_key' => ['required', new ProductCategoryUniqueSlug('products', $this->id)],
-            'images.files.*' => ['nullable', 'mimes:bmp,jpeg,jpg,png,webp'],
+            'images.files.*' => ['nullable', $this->mediaUpload->rule(MediaUpload::IMAGE)],
             'images.positions.*' => ['nullable', 'integer'],
             'images.meta.*.alt_text' => ['nullable', 'string', 'max:255'],
             'images.meta.*.file_name' => ['nullable', 'string', 'max:'.MediaFileName::MAX_LENGTH],
-            'videos.files.*' => ['nullable', 'mimetypes:application/octet-stream,video/mp4,video/webm,video/quicktime', 'max:'.$this->maxVideoFileSize],
+            'videos.files.*' => ['nullable', $this->mediaUpload->rule(MediaUpload::PRODUCT_VIDEO)],
             'videos.positions.*' => ['nullable', 'integer'],
             'videos.meta.*.file_name' => ['nullable', 'string', 'max:'.MediaFileName::MAX_LENGTH],
             'special_price_from' => ['nullable', 'date'],
@@ -115,7 +108,7 @@ class ProductForm extends FormRequest
             foreach (request()->images['files'] as $key => $file) {
                 if (Str::contains($key, 'image_')) {
                     $this->rules = array_merge($this->rules, [
-                        'images.files.'.$key => ['required', 'mimes:bmp,jpeg,jpg,png,webp'],
+                        'images.files.'.$key => ['required', $this->mediaUpload->rule(MediaUpload::IMAGE)],
                     ]);
                 }
             }
@@ -158,6 +151,13 @@ class ProductForm extends FormRequest
                 $validations[] = new Decimal;
             }
 
+            if (
+                $attribute->type == AttributeTypeEnum::IMAGE->value
+                && $this->hasFile($attribute->code)
+            ) {
+                $validations[] = $this->mediaUpload->rule(MediaUpload::IMAGE_ATTRIBUTE);
+            }
+
             if ($attribute->is_unique) {
                 array_push($validations, function ($field, $value, $fail) use ($attribute) {
                     if (
@@ -188,12 +188,12 @@ class ProductForm extends FormRequest
     {
         return [
             'variants.*.sku.unique' => trans('admin::app.catalog.products.index.already-taken', ['name' => ':attribute']),
-            'videos.files.*' => trans('admin::app.catalog.products.edit.videos.error', ['max' => $this->maxVideoFileSize]),
+            'videos.files.*' => trans('admin::app.catalog.products.edit.videos.error', ['max' => $this->mediaUpload->maxSize(MediaUpload::PRODUCT_VIDEO)]),
         ];
     }
 
     /**
-     * Attributes.
+     * Get the display names of the validated attributes.
      *
      * @return array
      */

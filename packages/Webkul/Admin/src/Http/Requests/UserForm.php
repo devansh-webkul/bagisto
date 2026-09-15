@@ -3,6 +3,7 @@
 namespace Webkul\Admin\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Webkul\Core\Helpers\MediaUpload;
 use Webkul\User\Repositories\RoleRepository;
 
 class UserForm extends FormRequest
@@ -42,7 +43,7 @@ class UserForm extends FormRequest
                 },
             ],
             'image' => 'array',
-            'image.*' => 'mimes:jpeg,jpg,png,gif|max:10000',
+            'image.*' => [app(MediaUpload::class)->rule(MediaUpload::IMAGE)],
         ];
     }
 }

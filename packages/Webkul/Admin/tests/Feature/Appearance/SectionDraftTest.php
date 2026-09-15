@@ -16,6 +16,10 @@ use function Pest\Laravel\get;
 use function Pest\Laravel\getJson;
 use function Pest\Laravel\postJson;
 
+/**
+ * Create a published section with options, which the factory leaves out although the editor never
+ * reaches a section without them.
+ */
 function makeSection(array $attributes = []): Section
 {
     $channel = core()->getDefaultChannel();
@@ -27,10 +31,6 @@ function makeSection(array $attributes = []): Section
         'status' => 1,
     ], $attributes));
 
-    /**
-     * The factory does not seed a translation, and a section with no options is not a
-     * state the editor can reach.
-     */
     $section->translateOrNew(app()->getLocale())->options = ['html' => '<p>published</p>'];
 
     $section->save();
@@ -369,6 +369,50 @@ it('should reject a media upload that is not an image', function () {
     postJson(route('admin.appearance.sections.media', $section->id), [
         'image' => UploadedFile::fake()->create('notes.txt', 4, 'text/plain'),
     ])->assertUnprocessable();
+});
+
+it('should refuse media larger than theme sections allow', function () {
+    Storage::fake();
+
+    $section = makeSection();
+
+    $this->loginAsAdmin();
+
+    postJson(route('admin.appearance.sections.media', $section->id), [
+        'file' => UploadedFile::fake()->create('hero.mp4', 51201, 'video/mp4'),
+    ])->assertJsonValidationErrorFor('file');
+
+    expect(Storage::allFiles())->toBeEmpty();
+});
+
+it('should refuse a carousel image that is not an image on the section form', function () {
+    Storage::fake();
+
+    $channel = core()->getDefaultChannel();
+
+    $section = makeSection(['type' => SectionTypeEnum::IMAGE_CAROUSEL->value]);
+
+    $this->loginAsAdmin();
+
+    postJson(route('admin.appearance.sections.update', $section->id), [
+        'locale' => app()->getLocale(),
+        'type' => $section->type,
+        'name' => $section->name,
+        'sort_order' => '1',
+        'channel_id' => $channel->id,
+        'theme_code' => $section->theme_code,
+        app()->getLocale() => [
+            'options' => [
+                [
+                    'title' => 'Payload',
+                    'link' => '',
+                    'image' => UploadedFile::fake()->create('payload.php', 1, 'text/x-php'),
+                ],
+            ],
+        ],
+    ])->assertJsonValidationErrorFor(app()->getLocale().'.options.0.image');
+
+    expect(Storage::allFiles())->toBeEmpty();
 });
 
 it('should let the preview be framed by the admin', function () {

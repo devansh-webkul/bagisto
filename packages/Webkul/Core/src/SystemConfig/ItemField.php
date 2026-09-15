@@ -3,6 +3,7 @@
 namespace Webkul\Core\SystemConfig;
 
 use Illuminate\Support\Str;
+use Webkul\Core\Helpers\MediaUpload;
 
 class ItemField
 {
@@ -105,10 +106,8 @@ class ItemField
     }
 
     /**
-     * Get validation of config item.
-     *
-     * These rules are read by Vee Validate in the browser, so the ones Laravel alone understands
-     * are dropped rather than passed on for it to refuse.
+     * Get the validation of the config item as Vee Validate reads it in the browser, dropping the rules
+     * only Laravel understands.
      */
     public function getValidations(): ?string
     {
@@ -123,20 +122,6 @@ class ItemField
             ->all();
 
         return implode('|', $rules);
-    }
-
-    /**
-     * A single rule under the name Vee Validate knows it by.
-     */
-    protected function toVeeValidateRule(string $rule): string
-    {
-        $name = Str::before($rule, ':');
-
-        if (! array_key_exists($this->getType(), $this->veeValidateMappings[$name] ?? [])) {
-            return $rule;
-        }
-
-        return Str::replaceFirst($name, $this->veeValidateMappings[$name][$this->getType()], $rule);
     }
 
     /**
@@ -280,6 +265,39 @@ class ItemField
         }
 
         return (string) collect(explode(':', $depends))->last();
+    }
+
+    /**
+     * A single rule under the name Vee Validate knows it by.
+     */
+    protected function toVeeValidateRule(string $rule): string
+    {
+        $name = Str::before($rule, ':');
+
+        if ($name === 'media') {
+            return $this->toVeeValidateMediaRules(Str::after($rule, ':'));
+        }
+
+        if (! array_key_exists($this->getType(), $this->veeValidateMappings[$name] ?? [])) {
+            return $rule;
+        }
+
+        return Str::replaceFirst($name, $this->veeValidateMappings[$name][$this->getType()], $rule);
+    }
+
+    /**
+     * The rules Vee Validate checks an upload of the given media context by.
+     */
+    protected function toVeeValidateMediaRules(string $context): string
+    {
+        $mediaUpload = app(MediaUpload::class);
+
+        $maxSize = $mediaUpload->maxSize($context);
+
+        return collect([
+            'mimes:'.implode(',', $mediaUpload->extensions($context)),
+            $maxSize ? 'size:'.$maxSize : null,
+        ])->filter()->implode('|');
     }
 
     /**

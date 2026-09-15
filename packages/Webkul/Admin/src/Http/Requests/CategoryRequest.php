@@ -5,12 +5,13 @@ namespace Webkul\Admin\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Webkul\Admin\Validations\ProductCategoryUniqueSlug;
 use Webkul\Core\Helpers\MediaFileName;
+use Webkul\Core\Helpers\MediaUpload;
 use Webkul\Core\Rules\Slug;
 
 class CategoryRequest extends FormRequest
 {
     /**
-     * Determine if the Configuration is authorized to make this request.
+     * Determine if the user is authorized to make this request.
      *
      * @return bool
      */
@@ -28,14 +29,16 @@ class CategoryRequest extends FormRequest
     {
         $locale = core()->getRequestedLocaleCode();
 
+        $imageRule = app(MediaUpload::class)->rule(MediaUpload::IMAGE);
+
         $rules = [
             'position' => 'required|integer',
             'logo_path' => 'array',
-            'logo_path.*' => 'mimes:bmp,jpeg,jpg,png,webp',
+            'logo_path.*' => [$imageRule],
             'logo_meta.*.alt_text' => ['nullable', 'string', 'max:255'],
             'logo_meta.*.file_name' => ['nullable', 'string', 'max:'.MediaFileName::MAX_LENGTH],
             'banner_path' => 'array',
-            'banner_path.*' => 'mimes:bmp,jpeg,jpg,png,webp',
+            'banner_path.*' => [$imageRule],
             'banner_meta.*.alt_text' => ['nullable', 'string', 'max:255'],
             'banner_meta.*.file_name' => ['nullable', 'string', 'max:'.MediaFileName::MAX_LENGTH],
             'attributes' => 'required|array',

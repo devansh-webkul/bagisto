@@ -4,6 +4,7 @@ namespace Webkul\Shop\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\View\View;
+use Webkul\Core\Helpers\MediaUpload;
 use Webkul\MagicAI\Facades\MagicAI;
 use Webkul\Marketing\Repositories\SearchTermRepository;
 use Webkul\Product\Repositories\SearchRepository;
@@ -21,7 +22,7 @@ class SearchController extends Controller
     ) {}
 
     /**
-     * Index to handle the view loaded with the search results
+     * Show the search results page.
      *
      * @return View
      */
@@ -76,8 +77,8 @@ class SearchController extends Controller
      */
     public function upload(): JsonResponse
     {
-        request()->validate([
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
+        $this->validate(request(), [
+            'image' => ['required', app(MediaUpload::class)->rule(MediaUpload::SEARCH_IMAGE)],
         ]);
 
         $imageUrl = $this->searchRepository->uploadSearchImage(request()->all());

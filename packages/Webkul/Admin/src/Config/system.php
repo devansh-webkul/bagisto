@@ -227,13 +227,13 @@ return [
                 'title' => 'admin::app.configuration.index.general.design.admin-logo.logo-image',
                 'type' => 'image',
                 'channel_based' => false,
-                'validation' => 'mimes:bmp,jpeg,jpg,png,webp,svg',
+                'validation' => 'media:branding',
             ], [
                 'name' => 'favicon',
                 'title' => 'admin::app.configuration.index.general.design.admin-logo.favicon',
                 'type' => 'image',
                 'channel_based' => false,
-                'validation' => 'mimes:bmp,jpeg,jpg,png,webp,svg,ico',
+                'validation' => 'media:branding_favicon',
             ],
         ],
     ], [
@@ -987,7 +987,7 @@ return [
                 'name' => 'url',
                 'title' => 'admin::app.configuration.index.catalog.products.small-image.placeholder',
                 'type' => 'image',
-                'validation' => 'mimes:bmp,jpeg,jpg,png,webp,svg',
+                'validation' => 'media:branding',
             ],
         ],
     ], [
@@ -1010,7 +1010,7 @@ return [
                 'name' => 'url',
                 'title' => 'admin::app.configuration.index.catalog.products.medium-image.placeholder',
                 'type' => 'image',
-                'validation' => 'mimes:bmp,jpeg,jpg,png,webp,svg',
+                'validation' => 'media:branding',
             ],
         ],
     ], [
@@ -1033,7 +1033,7 @@ return [
                 'name' => 'url',
                 'title' => 'admin::app.configuration.index.catalog.products.large-image.placeholder',
                 'type' => 'image',
-                'validation' => 'mimes:bmp,jpeg,jpg,png,webp,svg',
+                'validation' => 'media:branding',
             ],
         ],
     ], [
@@ -1993,7 +1993,7 @@ return [
                 'depends' => 'active:1',
                 'channel_based' => true,
                 'locale_based' => false,
-                'validation' => 'mimes:bmp,jpeg,jpg,png,webp',
+                'validation' => 'media:image',
             ], [
                 'name' => 'api_key',
                 'title' => 'admin::app.configuration.index.sales.payment-methods.api-key',
@@ -2080,7 +2080,7 @@ return [
                 'depends' => 'active:1',
                 'channel_based' => true,
                 'locale_based' => false,
-                'validation' => 'mimes:bmp,jpeg,jpg,png,webp',
+                'validation' => 'media:image',
             ], [
                 'name' => 'merchant_name',
                 'title' => 'admin::app.configuration.index.sales.payment-methods.merchant-name',
@@ -2186,7 +2186,7 @@ return [
                 'depends' => 'active:1',
                 'channel_based' => true,
                 'locale_based' => false,
-                'validation' => 'mimes:bmp,jpeg,jpg,png,webp',
+                'validation' => 'media:image',
             ], [
                 'name' => 'merchant_key',
                 'title' => 'admin::app.configuration.index.sales.payment-methods.merchant-key',
@@ -2255,7 +2255,7 @@ return [
                 'depends' => 'active:1',
                 'channel_based' => true,
                 'locale_based' => false,
-                'validation' => 'mimes:bmp,jpeg,jpg,png,webp',
+                'validation' => 'media:image',
             ], [
                 'name' => 'client_id',
                 'title' => 'admin::app.configuration.index.sales.payment-methods.client-id',
@@ -2335,7 +2335,7 @@ return [
                 'depends' => 'active:1',
                 'channel_based' => true,
                 'locale_based' => false,
-                'validation' => 'mimes:bmp,jpeg,jpg,png,webp',
+                'validation' => 'media:image',
             ], [
                 'name' => 'client_id',
                 'title' => 'admin::app.configuration.index.sales.payment-methods.client-id',
@@ -2412,7 +2412,7 @@ return [
                 'depends' => 'active:1',
                 'channel_based' => true,
                 'locale_based' => false,
-                'validation' => 'mimes:bmp,jpeg,jpg,png,webp',
+                'validation' => 'media:image',
             ], [
                 'name' => 'business_account',
                 'title' => 'admin::app.configuration.index.sales.payment-methods.business-account',
@@ -2473,7 +2473,7 @@ return [
                 'depends' => 'active:1',
                 'channel_based' => true,
                 'locale_based' => false,
-                'validation' => 'mimes:bmp,jpeg,jpg,png,webp',
+                'validation' => 'media:image',
             ], [
                 'name' => 'instructions',
                 'title' => 'admin::app.configuration.index.sales.payment-methods.instructions',
@@ -2570,7 +2570,7 @@ return [
                 'depends' => 'active:1',
                 'channel_based' => true,
                 'locale_based' => false,
-                'validation' => 'mimes:bmp,jpeg,jpg,png,webp',
+                'validation' => 'media:image',
             ], [
                 'name' => 'generate_invoice',
                 'title' => 'admin::app.configuration.index.sales.payment-methods.generate-invoice',
@@ -2667,7 +2667,7 @@ return [
                 'depends' => 'active:1',
                 'channel_based' => true,
                 'locale_based' => false,
-                'validation' => 'mimes:bmp,jpeg,jpg,png,webp',
+                'validation' => 'media:image',
             ], [
                 'name' => 'merchant_id',
                 'title' => 'admin::app.configuration.index.sales.payment-methods.merchant-id',
@@ -2922,7 +2922,7 @@ return [
                 'title' => 'admin::app.configuration.index.sales.invoice-settings.pdf-print-outs.logo',
                 'info' => 'admin::app.configuration.index.sales.invoice-settings.pdf-print-outs.logo-info',
                 'type' => 'image',
-                'validation' => 'mimes:bmp,jpeg,jpg,png,webp',
+                'validation' => 'media:image',
                 'channel_based' => true,
             ], [
                 'name' => 'footer_text',

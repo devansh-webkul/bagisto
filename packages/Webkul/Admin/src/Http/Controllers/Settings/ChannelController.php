@@ -9,6 +9,7 @@ use Illuminate\View\View;
 use Webkul\Admin\DataGrids\Settings\ChannelDataGrid;
 use Webkul\Admin\Http\Controllers\Controller;
 use Webkul\Core\Helpers\MediaFileName;
+use Webkul\Core\Helpers\MediaUpload;
 use Webkul\Core\Repositories\ChannelRepository;
 use Webkul\Core\Rules\Code;
 
@@ -52,8 +53,9 @@ class ChannelController extends Controller
      */
     public function store()
     {
+        $mediaUpload = app(MediaUpload::class);
+
         $data = $this->validate(request(), [
-            /* general */
             'code' => ['required', 'unique:channels,code', new Code],
             'name' => 'required',
             'description' => 'nullable',
@@ -61,26 +63,22 @@ class ChannelController extends Controller
             'root_category_id' => 'required',
             'hostname' => 'unique:channels,hostname',
 
-            /* currencies and locales */
             'locales' => 'required|array|min:1',
             'default_locale_id' => 'required|in_array:locales.*',
             'currencies' => 'required|array|min:1',
             'base_currency_id' => 'required|in_array:currencies.*',
 
-            /* design */
             'theme' => 'nullable',
-            'logo.*' => 'nullable|mimes:bmp,jpeg,jpg,png,webp',
+            'logo.*' => ['nullable', $mediaUpload->rule(MediaUpload::IMAGE)],
             'logo_meta.*.alt_text' => ['nullable', 'string', 'max:255'],
             'logo_meta.*.file_name' => ['nullable', 'string', 'max:'.MediaFileName::MAX_LENGTH],
-            'favicon.*' => 'nullable|mimes:bmp,jpeg,jpg,png,webp,ico',
+            'favicon.*' => ['nullable', $mediaUpload->rule(MediaUpload::FAVICON)],
             'favicon_meta.*.file_name' => ['nullable', 'string', 'max:'.MediaFileName::MAX_LENGTH],
 
-            /* seo */
             'seo_title' => 'required|string',
             'seo_description' => 'required|string',
             'seo_keywords' => 'required|string',
 
-            /* maintenance mode */
             'is_maintenance_on' => 'boolean',
             'maintenance_mode_text' => 'nullable',
             'allowed_ips' => 'nullable',
@@ -126,8 +124,9 @@ class ChannelController extends Controller
     {
         $locale = core()->getRequestedLocaleCode();
 
+        $mediaUpload = app(MediaUpload::class);
+
         $data = $this->validate(request(), [
-            /* general */
             'code' => ['required', 'unique:channels,code,'.$id, new Code],
             $locale.'.name' => 'required',
             $locale.'.description' => 'nullable',
@@ -135,26 +134,22 @@ class ChannelController extends Controller
             'root_category_id' => 'required',
             'hostname' => 'unique:channels,hostname,'.$id,
 
-            /* currencies and locales */
             'locales' => 'required|array|min:1',
             'default_locale_id' => 'required|in_array:locales.*',
             'currencies' => 'required|array|min:1',
             'base_currency_id' => 'required|in_array:currencies.*',
 
-            /* design */
             'theme' => 'nullable',
-            'logo.*' => 'nullable|mimes:bmp,jpeg,jpg,png,webp',
+            'logo.*' => ['nullable', $mediaUpload->rule(MediaUpload::IMAGE)],
             'logo_meta.*.alt_text' => ['nullable', 'string', 'max:255'],
             'logo_meta.*.file_name' => ['nullable', 'string', 'max:'.MediaFileName::MAX_LENGTH],
-            'favicon.*' => 'nullable|mimes:bmp,jpeg,jpg,png,webp,ico',
+            'favicon.*' => ['nullable', $mediaUpload->rule(MediaUpload::FAVICON)],
             'favicon_meta.*.file_name' => ['nullable', 'string', 'max:'.MediaFileName::MAX_LENGTH],
 
-            /* seo */
             $locale.'.seo_title' => 'required|string',
             $locale.'.seo_description' => 'required|string',
             $locale.'.seo_keywords' => 'required|string',
 
-            /* maintenance mode */
             'is_maintenance_on' => 'boolean',
             $locale.'.maintenance_mode_text' => 'nullable',
             'allowed_ips' => 'nullable',

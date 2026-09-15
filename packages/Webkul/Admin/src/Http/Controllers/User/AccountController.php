@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Webkul\Admin\Http\Controllers\Controller;
 use Webkul\Core\Helpers\MediaFileName;
+use Webkul\Core\Helpers\MediaUpload;
 
 class AccountController extends Controller
 {
@@ -38,7 +39,7 @@ class AccountController extends Controller
             'email' => 'email|unique:admins,email,'.$user->id,
             'password' => 'nullable|min:6|confirmed',
             'current_password' => 'required|min:6',
-            'image.*' => 'nullable|mimes:bmp,jpeg,jpg,png,webp',
+            'image.*' => ['nullable', app(MediaUpload::class)->rule(MediaUpload::IMAGE)],
             'image_meta.*.file_name' => ['nullable', 'string', 'max:'.MediaFileName::MAX_LENGTH],
         ]);
 

@@ -5,6 +5,7 @@ namespace Webkul\Shop\Http\Controllers\API;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Event;
+use Webkul\Core\Helpers\MediaUpload;
 use Webkul\MagicAI\Facades\MagicAI;
 use Webkul\Product\Repositories\ProductRepository;
 use Webkul\Product\Repositories\ProductReviewAttachmentRepository;
@@ -13,6 +14,16 @@ use Webkul\Shop\Http\Resources\ProductReviewResource;
 
 class ReviewController extends APIController
 {
+    /**
+     * Pending review status.
+     */
+    const STATUS_PENDING = 'pending';
+
+    /**
+     * Approved review status.
+     */
+    const STATUS_APPROVED = 'approved';
+
     /**
      * Create a controller instance.
      *
@@ -23,16 +34,6 @@ class ReviewController extends APIController
         protected ProductReviewRepository $productReviewRepository,
         protected ProductReviewAttachmentRepository $productReviewAttachmentRepository
     ) {}
-
-    /**
-     * Pending review status.
-     */
-    const STATUS_PENDING = 'pending';
-
-    /**
-     * Approved review status.
-     */
-    const STATUS_APPROVED = 'approved';
 
     /**
      * Product listings.
@@ -66,7 +67,7 @@ class ReviewController extends APIController
             'comment' => 'required',
             'rating' => 'required|numeric|min:1|max:5',
             'attachments' => 'array',
-            'attachments.*' => 'file|mimetypes:image/*,video/*',
+            'attachments.*' => [app(MediaUpload::class)->rule(MediaUpload::REVIEW_ATTACHMENT)],
         ]);
 
         $data = array_merge(request()->only([

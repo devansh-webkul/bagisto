@@ -3,6 +3,7 @@
 namespace Webkul\Shop\Http\Requests\Customer;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Webkul\Core\Helpers\MediaUpload;
 use Webkul\Core\Rules\PhoneNumber;
 
 class ProfileRequest extends FormRequest
@@ -38,7 +39,7 @@ class ProfileRequest extends FormRequest
             'new_password_confirmation' => 'required_with:new_password',
             'current_password' => 'required_with:new_password',
             'image' => 'array',
-            'image.*' => 'mimes:bmp,jpeg,jpg,png,webp',
+            'image.*' => [app(MediaUpload::class)->rule(MediaUpload::IMAGE)],
             'phone' => ['required', new PhoneNumber, 'unique:customers,phone,'.$id],
             'subscribed_to_news_letter' => 'nullable',
         ];

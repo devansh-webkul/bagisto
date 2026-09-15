@@ -3,6 +3,8 @@
 namespace Webkul\Admin\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Str;
+use Webkul\Core\Helpers\MediaUpload;
 use Webkul\Core\Rules\CommaSeparatedInteger;
 use Webkul\Core\Rules\Decimal;
 use Webkul\Core\Rules\PhoneNumber;
@@ -77,7 +79,8 @@ class ConfigurationForm extends FormRequest
     }
 
     /**
-     * Transform validation rules into an array and map custom validation rules.
+     * Transform validation rules into an array and map custom validation rules, a `media:{context}` rule
+     * becoming the upload rule of that media context.
      *
      * @param  string|array  $validation
      * @return array
@@ -87,6 +90,13 @@ class ConfigurationForm extends FormRequest
         $validations = is_array($validation) ? $validation : explode('|', $validation);
 
         return array_map(function ($rule) {
+            if (
+                is_string($rule)
+                && Str::startsWith($rule, 'media:')
+            ) {
+                return app(MediaUpload::class)->rule(Str::after($rule, 'media:'));
+            }
+
             return match ($rule) {
                 'comma_separated_integer' => new CommaSeparatedInteger,
                 'decimal' => new Decimal,
