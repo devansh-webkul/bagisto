@@ -2,14 +2,19 @@
 
 namespace Webkul\Admin\Providers;
 
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Broadcast;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Webkul\Admin\CommandPalette\CommandPalette;
 use Webkul\Admin\CommandPalette\Providers\ActionProvider;
 use Webkul\Admin\CommandPalette\Providers\ConfigurationProvider;
 use Webkul\Admin\CommandPalette\Providers\NavigationProvider;
+use Webkul\Admin\SystemHealth\Checks\QueueWorkerCheck;
+use Webkul\Admin\SystemHealth\Checks\SchedulerCheck;
+use Webkul\Admin\SystemHealth\Heartbeat;
 use Webkul\Core\Http\Middleware\PreventRequestsDuringMaintenance;
 
 class AdminServiceProvider extends ServiceProvider
@@ -22,6 +27,8 @@ class AdminServiceProvider extends ServiceProvider
         $this->registerConfig();
 
         $this->registerCommandPalette();
+
+        $this->app->singleton(Heartbeat::class);
     }
 
     /**
@@ -32,6 +39,8 @@ class AdminServiceProvider extends ServiceProvider
         Route::middleware(['web', PreventRequestsDuringMaintenance::class])->group(__DIR__.'/../Routes/web.php');
 
         $this->registerBroadcasting();
+
+        $this->registerHeartbeats();
 
         $this->loadTranslationsFrom(__DIR__.'/../Resources/lang', 'admin');
 
@@ -50,6 +59,26 @@ class AdminServiceProvider extends ServiceProvider
         Broadcast::routes();
 
         require __DIR__.'/../Routes/channels.php';
+    }
+
+    /**
+     * Have the queue worker and the scheduler record that they are alive, for the system health checks.
+     */
+    protected function registerHeartbeats(): void
+    {
+        $beat = fn () => $this->app->make(Heartbeat::class)->beat(QueueWorkerCheck::HEARTBEAT);
+
+        Queue::looping($beat);
+
+        Queue::before($beat);
+
+        Queue::after($beat);
+
+        $this->callAfterResolving(Schedule::class, function (Schedule $schedule) {
+            $schedule->call(fn () => $this->app->make(Heartbeat::class)->beat(SchedulerCheck::HEARTBEAT))
+                ->everyMinute()
+                ->name('admin:system-health:scheduler-heartbeat');
+        });
     }
 
     /**
@@ -85,6 +114,11 @@ class AdminServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(
             dirname(__DIR__).'/Config/notification-types.php',
             'notification_types'
+        );
+
+        $this->mergeConfigFrom(
+            dirname(__DIR__).'/Config/system-health.php',
+            'system_health'
         );
     }
 
